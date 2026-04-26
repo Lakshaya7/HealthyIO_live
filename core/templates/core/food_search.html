@@ -1,0 +1,185 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="pt-24 pb-12 px-4 max-w-7xl mx-auto">
+    
+    {% if not data %}
+    <!-- Empty State -->
+    <div class="text-center py-20 bg-white rounded-[3rem] shadow-sm border border-dashed border-gray-200">
+        <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i data-lucide="search" class="w-12 h-12 text-gray-300"></i>
+        </div>
+        <h2 class="text-3xl font-black text-gray-800">Deep Nutrition Search</h2>
+        <p class="text-gray-500 mt-2 max-w-sm mx-auto">Use the search bar above to get a lifetime-aware analysis of your food choices.</p>
+    </div>
+    {% else %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
+        
+        <!-- LEFT: Summary, Score & Image -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white rounded-[2rem] shadow-xl overflow-hidden border border-gray-100">
+                <div class="relative h-64 bg-gray-100">
+                    <!-- FIX: Added onerror fallback to instantly replace broken image links -->
+                    <img id="dynamicFoodImage" class="absolute inset-0 w-full h-full object-cover" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800';">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 text-white">
+                        <h1 class="text-4xl font-black drop-shadow-lg">{{ data.food_name }}</h1>
+                        <p class="text-teal-300 font-bold uppercase tracking-widest text-xs mt-1">Personalized Analysis</p>
+                    </div>
+                </div>
+                
+                <!-- Color-Coded Main Scores -->
+                <div class="p-6">
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-50 p-4 rounded-2xl text-center border border-gray-100">
+                            <span class="text-[10px] font-black text-gray-400 uppercase block mb-1">Health Score</span>
+                            <span class="text-3xl font-black 
+                                {% if data.health_score >= 75 %}text-green-500
+                                {% elif data.health_score >= 50 %}text-yellow-500
+                                {% else %}text-red-500{% endif %}">
+                                {{ data.health_score }}
+                            </span>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-2xl text-center border border-gray-100">
+                            <span class="text-[10px] font-black text-gray-400 uppercase block mb-1">Glycemic Index</span>
+                            <span class="text-3xl font-black 
+                                {% if data.glycemic_index <= 55 %}text-green-500
+                                {% elif data.glycemic_index <= 70 %}text-yellow-500
+                                {% else %}text-red-500{% endif %}">
+                                {{ data.glycemic_index }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-teal-50 rounded-2xl border border-teal-100">
+                        <p class="text-sm text-teal-800 font-medium italic">"{{ data.summary }}"</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extra Good Stats -->
+            <div class="bg-white p-6 rounded-[2rem] shadow-lg border border-gray-100 space-y-4">
+                <div class="flex items-center justify-between p-3 bg-blue-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="droplet" class="w-5 h-5 text-blue-500"></i>
+                        <span class="text-sm font-bold text-gray-600">Hydration</span>
+                    </div>
+                    <span class="font-black text-blue-700">{{ data.hydration }}</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-emerald-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="wind" class="w-5 h-5 text-emerald-500"></i>
+                        <span class="text-sm font-bold text-gray-600">Fiber</span>
+                    </div>
+                    <span class="font-black text-emerald-700">{{ data.fiber }}g</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-purple-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="zap" class="w-5 h-5 text-purple-500"></i>
+                        <span class="text-sm font-bold text-gray-600">Satiety</span>
+                    </div>
+                    <span class="font-black text-purple-700">{{ data.satiety_index }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Lifetime Opinion & Deep Stats -->
+        <div class="lg:col-span-2 space-y-8">
+            
+            <!-- 1. Lifetime Strategic Opinion (The big logic) -->
+            <div class="bg-gradient-to-br from-gray-900 to-teal-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden border border-teal-500/20">
+                <i data-lucide="history" class="absolute -top-10 -right-10 w-60 h-60 opacity-5"></i>
+                <h3 class="text-xs font-black uppercase tracking-widest text-teal-400 mb-4 flex items-center gap-2">
+                    <i data-lucide="brain-circuit" class="w-4 h-4"></i> Lifetime Health Strategy
+                </h3>
+                <p class="text-xl md:text-2xl font-medium leading-relaxed mb-8">
+                    {{ data.opinion }}
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10">
+                        <span class="text-[10px] font-bold text-teal-300 uppercase block mb-1">Recommended Serving</span>
+                        <span class="font-bold text-lg">{{ data.quantity_advice }}</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10">
+                        <span class="text-[10px] font-bold text-teal-300 uppercase block mb-1">Fitness Impact</span>
+                        <span class="font-bold text-lg">{{ data.fitness_impact }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 2. Nutritional Breakdown -->
+                <div class="bg-white p-8 rounded-[2rem] shadow-xl border border-gray-100">
+                    <h3 class="text-xl font-black text-gray-800 mb-6 flex items-center gap-2">
+                        <i data-lucide="layers" class="w-5 h-5 text-teal-500"></i> Macronutrients
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center py-2 border-b border-gray-50">
+                            <span class="font-bold text-gray-500">Calories</span><span class="font-black text-gray-800">{{ data.calories }} kcal</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-50">
+                            <span class="font-bold text-gray-500">Protein</span><span class="font-black text-teal-600">{{ data.protein }}g</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-50">
+                            <span class="font-bold text-gray-500">Carbs</span><span class="font-black text-amber-600">{{ data.carbs }}g</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2">
+                            <span class="font-bold text-gray-500">Fats</span><span class="font-black text-rose-600">{{ data.fats }}g</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Micronutrients (Vitamins) -->
+                <div class="bg-white p-8 rounded-[2rem] shadow-xl border border-gray-100">
+                    <h3 class="text-xl font-black text-gray-800 mb-6 flex items-center gap-2">
+                        <i data-lucide="component" class="w-5 h-5 text-purple-500"></i> Key Micronutrients
+                    </h3>
+                    <div class="flex flex-wrap gap-2">
+                        {% for item in data.micronutrients %}
+                        <span class="px-4 py-2 bg-purple-50 text-purple-700 rounded-xl text-xs font-black border border-purple-100">
+                            {{ item }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const imgElement = document.getElementById('dynamicFoodImage');
+            const rawFoodName = "{{ data.food_name|escapejs }}";
+            
+            // 1. Clean the name to get better search results (removes quantities like "100g" or "1 cup")
+            const cleanFoodName = rawFoodName.replace(/^[0-9./\s]+(g|oz|cup|tbsp|tsp|lb|piece|slice)s?\s+/i, '').trim();
+
+            // 2. Use Wikipedia's smart 'search' generator instead of strict 'titles'
+            const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanFoodName)}&gsrlimit=1&prop=pageimages&format=json&piprop=thumbnail&pithumbsize=1000&origin=*`;
+            
+            fetch(wikiUrl).then(r => r.json()).then(d => {
+                // 3. Drill down into the search results safely
+                if (d.query && d.query.pages) {
+                    const pages = d.query.pages;
+                    const pId = Object.keys(pages)[0];
+                    if (pId !== "-1" && pages[pId].thumbnail) {
+                        imgElement.src = pages[pId].thumbnail.source;
+                        return; // Success!
+                    }
+                }
+                throw new Error("No image thumbnail found in search results");
+            }).catch(() => {
+                // 4. If Wikipedia truly has no image, pick a random healthy fallback so it isn't always the exact same picture
+                const fallbacks = [
+                    "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800",
+                    "https://images.unsplash.com/photo-1498837167922-41c312927619?auto=format&fit=crop&w=800",
+                    "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=800",
+                    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800"
+                ];
+                imgElement.src = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+            });
+        });
+    </script>
+    {% endif %}
+</div>
+{% endblock %}

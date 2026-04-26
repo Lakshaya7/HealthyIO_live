@@ -1,0 +1,159 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="pt-10 pb-12 px-4 max-w-6xl mx-auto min-h-screen">
+    
+    <div class="mb-8">
+        <h1 class="text-3xl font-black text-gray-800 tracking-tight">Your Profile</h1>
+        <p class="text-gray-500 font-medium mt-1">Manage account details and clinical medical data.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- LEFT COLUMN: Account Form -->
+        <div class="lg:col-span-2 bg-white rounded-[2rem] shadow-xl border border-gray-100 overflow-hidden">
+            
+            <div class="bg-gradient-to-r from-teal-500 to-emerald-600 p-8 text-white flex items-center gap-6">
+                <div class="w-24 h-24 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-4xl font-black shadow-inner border-2 border-white/40 shrink-0">
+                    {{ user.username|make_list|first|upper }}
+                </div>
+                <div>
+                    <h2 class="text-3xl font-extrabold">{{ user.first_name|default:user.username }}</h2>
+                    <p class="text-teal-50 mt-1 flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4"></i> {{ user.email }}</p>
+                </div>
+            </div>
+
+            <div class="p-8">
+                <form method="POST" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- Basic Info -->
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2"><i data-lucide="settings-2" class="w-5 h-5 text-teal-600"></i> Account Details</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">First Name</label>{{ u_form.first_name }}</div>
+                        <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Last Name</label>{{ u_form.last_name }}</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Email Address</label>{{ u_form.email }}</div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Date of Birth</label>
+                            <input type="date" id="dobInput" oninput="calculateStats()" class="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all text-gray-700 font-medium">
+                        </div>
+                    </div>
+
+                    <!-- Medical AI Context Section -->
+                    <div class="relative my-10">
+                        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-100"></div></div>
+                        <div class="relative flex justify-center">
+                            <span class="px-4 bg-white text-rose-500 text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                                <i data-lucide="stethoscope" class="w-4 h-4"></i> Clinical Medical Data
+                            </span>
+                        </div>
+                    </div>
+
+                    <p class="text-sm text-gray-500 font-medium mb-6 bg-rose-50 p-4 rounded-xl border border-rose-100">
+                        <i data-lucide="info" class="w-4 h-4 inline-block -mt-0.5 mr-1 text-rose-500"></i>
+                        The AI Coach uses this data to adjust your daily health scores and provide safe, personalized food recommendations.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Health Issues</label>{{ p_form.health_issues }}</div>
+                        <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Stage / Severity</label>{{ p_form.issue_stage }}</div>
+                    </div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Current Medications</label>{{ p_form.medications }}</div>
+
+                    <div class="pt-6 border-t border-gray-100 flex gap-4">
+                        <button type="submit" class="flex-1 py-4 bg-teal-600 text-white font-black rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2">
+                            Save Profile & Medical Data
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Smart BMI Dashboard -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-[2rem] shadow-2xl border border-gray-700 p-8 text-white relative">
+                <h3 class="text-lg font-bold text-gray-300 mb-6 flex items-center gap-2"><i data-lucide="scale" class="w-5 h-5 text-teal-400"></i> Body Metrics</h3>
+
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-32 h-32 rounded-full border-8 border-gray-700 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] bg-gray-800">
+                        <span id="bmiValue" class="text-4xl font-black text-white">--</span>
+                    </div>
+                    <div id="bmiCategory" class="mt-4 text-lg font-bold tracking-widest uppercase text-gray-400">Enter Stats</div>
+                </div>
+
+                <div class="flex justify-center mb-6">
+                    <div class="bg-gray-800/50 border border-gray-700 rounded-xl px-6 py-3 text-center w-full">
+                        <span class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Calculated Age</span>
+                        <span id="ageDisplay" class="text-2xl font-black text-gray-200">-- yrs</span>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Weight (kg)</label>
+                        <input type="number" id="weightInput" oninput="calculateStats()" class="w-full bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-teal-400 outline-none font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Height (cm)</label>
+                        <input type="number" id="heightInput" oninput="calculateStats()" class="w-full bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-teal-400 outline-none font-bold">
+                    </div>
+                </div>
+            </div>
+            
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="w-full py-3 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 flex items-center justify-center gap-2">
+                    <i data-lucide="log-out" class="w-5 h-5"></i> Sign Out
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if(localStorage.getItem('userDob')) document.getElementById('dobInput').value = localStorage.getItem('userDob');
+        if(localStorage.getItem('userWeight')) document.getElementById('weightInput').value = localStorage.getItem('userWeight');
+        if(localStorage.getItem('userHeight')) document.getElementById('heightInput').value = localStorage.getItem('userHeight');
+        calculateStats();
+    });
+
+    function calculateStats() {
+        const dobString = document.getElementById('dobInput').value;
+        const weight = parseFloat(document.getElementById('weightInput').value);
+        const height = parseFloat(document.getElementById('heightInput').value);
+        const ageDisplay = document.getElementById('ageDisplay');
+        const bmiDisplay = document.getElementById('bmiValue');
+        const category = document.getElementById('bmiCategory');
+
+        // Handle Age
+        if (dobString) {
+            localStorage.setItem('userDob', dobString);
+            const dob = new Date(dobString);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) age--;
+            ageDisplay.innerText = age >= 0 ? `${age} yrs` : "-- yrs";
+        }
+
+        // Handle BMI
+        if (weight > 0 && height > 0) {
+            localStorage.setItem('userWeight', weight);
+            localStorage.setItem('userHeight', height);
+            const bmi = (weight / Math.pow(height / 100, 2)).toFixed(1);
+            bmiDisplay.innerText = bmi;
+
+            if (bmi < 18.5) { category.innerText = "Underweight"; category.className = "mt-4 text-lg font-bold uppercase text-blue-400"; bmiDisplay.parentElement.style.borderColor = "#3b82f6"; bmiDisplay.parentElement.style.boxShadow = "0 0 30px rgba(59,130,246,0.3)"; }
+            else if (bmi < 24.9) { category.innerText = "Normal Weight"; category.className = "mt-4 text-lg font-bold uppercase text-emerald-400"; bmiDisplay.parentElement.style.borderColor = "#10b981"; bmiDisplay.parentElement.style.boxShadow = "0 0 30px rgba(16,185,129,0.3)"; }
+            else if (bmi < 29.9) { category.innerText = "Overweight"; category.className = "mt-4 text-lg font-bold uppercase text-yellow-400"; bmiDisplay.parentElement.style.borderColor = "#eab308"; bmiDisplay.parentElement.style.boxShadow = "0 0 30px rgba(234,179,8,0.3)"; }
+            else { category.innerText = "Obese"; category.className = "mt-4 text-lg font-bold uppercase text-red-400"; bmiDisplay.parentElement.style.borderColor = "#ef4444"; bmiDisplay.parentElement.style.boxShadow = "0 0 30px rgba(239,68,68,0.3)"; }
+        } else {
+            bmiDisplay.innerText = "--"; category.innerText = "Enter Stats"; category.className = "mt-4 text-lg font-bold uppercase text-gray-400";
+            bmiDisplay.parentElement.style.borderColor = "#374151"; bmiDisplay.parentElement.style.boxShadow = "inset 0 0 20px rgba(0,0,0,0.5)";
+        }
+    }
+</script>
+{% endblock %}

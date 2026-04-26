@@ -1,0 +1,194 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<!-- THE INTERACTIVE "+" PATTERN BACKGROUND -->
+<div id="pattern-container" class="fixed inset-0 z-0 flex flex-wrap content-start justify-start overflow-hidden opacity-40 dark:opacity-20 pointer-events-auto">
+    <!-- JS will inject the + signs here -->
+</div>
+
+<!-- Main Content Wrapper -->
+<div class="relative z-10 pb-12 pointer-events-none">
+
+    <!-- 1. MAIN HERO CONTENT -->
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32 text-center animate-fade-in-up">
+        <!-- Decorative Background Blobs -->
+        <div class="absolute right-0 top-0 w-96 h-96 bg-teal-400/20 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="absolute left-0 bottom-0 w-96 h-96 bg-yellow-400/20 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div class="inline-flex items-center gap-2 bg-white dark:bg-slate-800 px-5 py-2.5 rounded-full mb-8 border border-gray-100 dark:border-slate-700 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-105 pointer-events-auto">
+            <i data-lucide="heart" class="w-5 h-5 text-pink-500 fill-current"></i>
+            <span class="font-bold tracking-wide text-sm md:text-base text-gray-800 dark:text-gray-200">UN SDG Goal 3: Good Health & Well-being</span>
+        </div>
+
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-black text-gray-900 dark:text-white tracking-tight mb-8 drop-shadow-sm leading-tight pointer-events-auto">
+            Your Health, <br/>
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-emerald-600">Our Shared Future.</span>
+        </h1>
+
+        <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-400 font-medium max-w-3xl mx-auto mb-12 leading-relaxed pointer-events-auto">
+            Join a global movement dedicated to sustainable health habits. Track your sleep, hydration, and nutrition to build a healthier you and a better world.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-5 pointer-events-auto">
+            <a href="{% url 'register' %}" class="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-teal-500 to-emerald-600 text-white rounded-2xl font-black text-lg hover:shadow-[0_10px_30px_-10px_rgba(20,184,166,0.6)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 border border-teal-400/50">
+                Start Your Journey <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </a>
+            <a href="#about" class="w-full sm:w-auto px-10 py-4 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 border-2 border-gray-100 dark:border-slate-700 rounded-2xl font-black text-lg hover:border-teal-500 dark:hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400 transition-all duration-300 flex items-center justify-center gap-3 shadow-sm hover:-translate-y-1">
+                Learn More
+            </a>
+        </div>
+    </div>
+
+    <!-- 2. FEATURES / SDG INFO SECTION -->
+    <!-- FIX: Removed the massive background container so the '+' grid is interactive between the cards -->
+    <div id="about" class="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 transition-colors duration-300">
+        
+        <div class="text-center mb-16 pointer-events-auto">
+            <h2 class="text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">Why HealthyIO?</h2>
+            <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed font-medium">
+                We align your personal fitness goals with the <span class="text-teal-600 dark:text-teal-400 font-bold bg-teal-50 dark:bg-slate-800 px-2 py-1 rounded-lg">United Nations Sustainable Development Goal 3</span> to ensure healthy lives and promote well-being for all ages.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-10">
+            <!-- Feature Card 1 -->
+            <!-- FIX: Applied solid background colors and precise pointer-events to individual cards -->
+            <div class="p-8 bg-white dark:bg-slate-800 rounded-[2rem] border border-gray-100 dark:border-slate-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 pointer-events-auto group">
+                <div class="w-16 h-16 bg-teal-50 dark:bg-slate-700 rounded-2xl flex items-center justify-center text-teal-600 dark:text-teal-400 mb-8 transform rotate-3 group-hover:scale-110 transition-transform">
+                    <i data-lucide="activity" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-4">Track Vitals</h3>
+                <p class="text-gray-600 dark:text-gray-400 leading-relaxed font-medium">Monitor your daily vitals including sleep cycles, water intake, and physical exercise to visualize your improvement over time.</p>
+            </div>
+
+            <!-- Feature Card 2 -->
+            <div class="p-8 bg-white dark:bg-slate-800 rounded-[2rem] border border-gray-100 dark:border-slate-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 pointer-events-auto group">
+                <div class="w-16 h-16 bg-blue-50 dark:bg-slate-700 rounded-2xl flex items-center justify-center text-blue-600 dark:text-blue-400 mb-8 transform -rotate-3 group-hover:scale-110 transition-transform">
+                    <i data-lucide="award" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-4">Earn Health Score</h3>
+                <p class="text-gray-600 dark:text-gray-400 leading-relaxed font-medium">Get a daily health score based on your activities. Gamify your journey to better health with actionable insights.</p>
+            </div>
+
+            <!-- Feature Card 3 -->
+            <div class="p-8 bg-white dark:bg-slate-800 rounded-[2rem] border border-gray-100 dark:border-slate-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 pointer-events-auto group">
+                <div class="w-16 h-16 bg-purple-50 dark:bg-slate-700 rounded-2xl flex items-center justify-center text-purple-600 dark:text-purple-400 mb-8 transform rotate-3 group-hover:scale-110 transition-transform">
+                    <i data-lucide="share-2" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-4">Community Impact</h3>
+                <p class="text-gray-600 dark:text-gray-400 leading-relaxed font-medium">Share your achievements and inspire others. Small individual steps lead to a giant leap for global well-being.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. QUOTES SECTION (Buddha) -->
+    <!-- FIX: Solid opaque background ensures text is always legible -->
+    <div class="bg-gray-900 dark:bg-slate-900 text-white py-28 relative overflow-hidden rounded-[3rem] mx-4 max-w-7xl xl:mx-auto mb-16 shadow-2xl border border-gray-800 dark:border-slate-800 pointer-events-auto">
+        <!-- Texture & Glow overlays -->
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div class="absolute -top-40 -right-40 w-[40rem] h-[40rem] bg-teal-500/20 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="absolute -bottom-40 -left-40 w-[40rem] h-[40rem] bg-emerald-500/20 rounded-full blur-[100px] pointer-events-none"></div>
+        
+        <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+            <i data-lucide="quote" class="w-16 h-16 mx-auto text-teal-500 mb-10 opacity-60"></i>
+            <blockquote class="text-3xl md:text-5xl font-serif italic leading-tight mb-12 text-gray-100 drop-shadow-md">
+                "To keep the body in good health is a duty... otherwise we shall not be able to keep our mind strong and clear."
+            </blockquote>
+            <cite class="text-teal-400 font-bold tracking-widest uppercase text-sm md:text-base not-italic block mb-2">— Buddha</cite>
+            <div class="w-24 h-1.5 bg-gradient-to-r from-teal-500 to-emerald-500 mx-auto rounded-full mt-8 shadow-[0_0_15px_rgba(20,184,166,0.6)]"></div>
+        </div>
+    </div>
+
+    <!-- 4. CTA SECTION -->
+    <!-- FIX: Changed bg-teal-50 to bg-white so it gets the solid premium dark theme -->
+    <div class="py-24 bg-white dark:bg-slate-800 text-center rounded-[3rem] mx-4 max-w-7xl xl:mx-auto mb-8 border border-gray-100 dark:border-slate-700 shadow-xl pointer-events-auto transition-colors duration-300">
+        <h2 class="text-3xl md:text-4xl font-black text-gray-800 dark:text-white mb-8 tracking-tight">Ready to prioritize your health?</h2>
+        <div class="flex justify-center">
+            <a href="{% url 'register' %}" class="px-12 py-5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white rounded-2xl font-black text-xl shadow-2xl hover:shadow-[0_10px_40px_-10px_rgba(20,184,166,0.8)] hover:-translate-y-1 transition-all duration-300 border border-teal-400/30 flex items-center gap-3">
+                Join HealthyIO Today <i data-lucide="arrow-right" class="w-6 h-6"></i>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<!-- CSS FOR THE SPINNING PLUS PATTERN AND ANIMATIONS -->
+<style>
+    /* Base Plus Sign Styling */
+    .bg-plus {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+        font-weight: 300;
+        color: #cbd5e1; /* Tailwind slate-300 */
+        cursor: crosshair;
+        user-select: none;
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy spring transition */
+        transform-origin: center;
+    }
+
+    /* Hover Effects: Spin 180 degrees, scale up, and glow */
+    .bg-plus:hover {
+        color: #14b8a6; /* Tailwind teal-500 */
+        transform: rotate(180deg) scale(1.6);
+        text-shadow: 0 0 15px rgba(20, 184, 166, 0.6);
+        z-index: 10;
+        font-weight: 600;
+    }
+
+    /* Dark Mode specific colors */
+    body.dark-theme .bg-plus {
+        color: #334155; /* Tailwind slate-700 */
+    }
+    body.dark-theme .bg-plus:hover {
+        color: #00d084; /* Premium dark mode neon green */
+        text-shadow: 0 0 20px rgba(0, 208, 132, 0.8);
+    }
+
+    /* Entrance Animation */
+    .animate-fade-in-up {
+        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<!-- JS TO GENERATE THE PERFECT GRID BACKGROUND -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const container = document.getElementById('pattern-container');
+        
+        function generatePattern() {
+            container.innerHTML = '';
+            const boxSize = 40; 
+            
+            const cols = Math.ceil(window.innerWidth / boxSize);
+            const rows = Math.ceil(window.innerHeight / boxSize);
+            const totalItems = cols * rows;
+
+            let patternHTML = '';
+            for (let i = 0; i < totalItems; i++) {
+                patternHTML += `<div class="bg-plus">+</div>`;
+            }
+            
+            container.innerHTML = patternHTML;
+            container.style.display = 'grid';
+            container.style.gridTemplateColumns = `repeat(${cols}, ${boxSize}px)`;
+            container.style.gridTemplateRows = `repeat(${rows}, ${boxSize}px)`;
+        }
+
+        generatePattern();
+
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(generatePattern, 150);
+        });
+    });
+</script>
+{% endblock %}

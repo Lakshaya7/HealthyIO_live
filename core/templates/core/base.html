@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" class="transition-colors duration-300">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthyIO | AI Health Coach</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind Config for Dark Mode -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        teal: { 400: '#2DD4BF', 500: '#14B8A6', 600: '#0D9488', 700: '#0F766E' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- PREMIUM DARK MODE CSS -->
+    <style>
+        body { transition: background-color 0.4s ease, color 0.4s ease; }
+        
+        /* Premium Luxury Navy & Glowing Emerald Theme */
+        body.dark-theme {
+            background-color: #0f172a !important; 
+            color: #f8fafc !important;
+        }
+        body.dark-theme .bg-white, body.dark-theme .bg-white\/90 {
+            background: linear-gradient(145deg, #1e293b, #131c2c) !important;
+            border-color: rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.7) !important;
+        }
+        body.dark-theme .bg-gray-50, body.dark-theme .bg-gray-100 {
+            background-color: rgba(30, 41, 59, 0.5) !important;
+            border-color: rgba(255, 255, 255, 0.03) !important;
+        }
+        body.dark-theme .text-gray-800, body.dark-theme .text-gray-900, body.dark-theme .text-gray-700 {
+            color: #f1f5f9 !important;
+        }
+        body.dark-theme .text-gray-500, body.dark-theme .text-gray-600 {
+            color: #94a3b8 !important;
+        }
+        /* Neon Accents */
+        body.dark-theme .text-teal-600, body.dark-theme .text-teal-700 {
+            color: #00d084 !important; 
+            text-shadow: 0 0 15px rgba(0, 208, 132, 0.3);
+        }
+        body.dark-theme button.bg-teal-600, body.dark-theme button[class*="bg-gradient-to-"] {
+            background: linear-gradient(to right, #0f766e, #00d084) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(0, 208, 132, 0.4) !important;
+            box-shadow: 0 4px 15px rgba(0, 208, 132, 0.25) !important;
+        }
+        /* Dark Inputs */
+        body.dark-theme input, body.dark-theme select, body.dark-theme textarea {
+            background-color: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #f8fafc !important; color-scheme: dark;
+        }
+        body.dark-theme input:focus {
+            border-color: #00d084 !important;
+            box-shadow: 0 0 0 3px rgba(0, 208, 132, 0.2), inset 0 2px 4px rgba(0,0,0,0.3) !important;
+        }
+        /* Glowing Badges */
+        body.dark-theme .bg-green-100 { background: rgba(0, 208, 132, 0.15) !important; color: #00d084 !important; border-color: rgba(0, 208, 132, 0.3) !important; }
+        body.dark-theme .bg-teal-100 { background: rgba(45, 212, 191, 0.15) !important; color: #2dd4bf !important; }
+        body.dark-theme .bg-yellow-100 { background: rgba(250, 204, 21, 0.15) !important; color: #facc15 !important; }
+        body.dark-theme .bg-red-100 { background: rgba(248, 113, 113, 0.15) !important; color: #f87171 !important; }
+        body.dark-theme .bg-purple-100 { background: rgba(168, 85, 247, 0.15) !important; color: #c084fc !important; }
+        
+        /* Toggle Button */
+        body.dark-theme .dark-toggle-btn { background-color: rgba(30, 41, 59, 0.8) !important; border-color: rgba(255, 255, 255, 0.1) !important; }
+        
+        /* Table overrides */
+        body.dark-theme td, body.dark-theme th, body.dark-theme .border-t { border-color: rgba(255, 255, 255, 0.05) !important; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b border-gray-100 fixed w-full top-0 z-50 shadow-sm transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center gap-4">
+                
+                <!-- Brand & Search Bar Combo -->
+                <div class="flex items-center gap-4 lg:gap-8 flex-1">
+                    <a href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'home' %}{% endif %}" class="flex items-center gap-2 group shrink-0">
+                        <div class="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                            <i data-lucide="leaf" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-emerald-600 hidden sm:block">HealthyIO</span>
+                    </a>
+
+                    <!-- INTEGRATED SEARCH BAR (beside app name) -->
+                    {% if user.is_authenticated %}
+                    <form action="{% url 'food_search' %}" method="POST" class="relative w-full max-w-md flex items-center group">
+                        {% csrf_token %}
+                        <div class="relative w-full">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10 group-focus-within:text-teal-500 transition-colors"></i>
+                            <input type="text" name="food_query" placeholder="Ask AI about any food..." class="w-full pl-9 pr-12 py-2.5 bg-gray-100 border border-transparent rounded-full text-sm font-medium focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all outline-none" required>
+                            
+                            <!-- Internal Search Button -->
+                            <button type="submit" class="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 bg-teal-600 text-white rounded-full hover:bg-teal-700 hover:scale-105 transition-all shadow-sm" title="Search Food">
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+
+                <div class="flex items-center gap-4 lg:gap-6">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'tips' %}" class="text-gray-600 hover:text-teal-600 font-bold transition-colors hidden md:block">Tips</a>
+                        <a href="{% url 'game' %}" class="text-gray-600 hover:text-teal-600 font-bold transition-colors hidden md:block">Play Game</a>
+                        
+                        <a href="{% url 'add_log' %}" class="bg-gradient-to-r from-teal-500 to-emerald-600 text-white px-4 py-2 rounded-full font-bold text-sm hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 border border-teal-400/50">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> <span class="hidden sm:inline">Add Log</span>
+                        </a>
+                        
+                        <!-- PROFILE DROPDOWN MENU -->
+                        <div class="relative" id="profileDropdownWrapper">
+                            <button onclick="toggleProfileDropdown()" class="flex items-center gap-2 pl-4 border-l border-gray-200 focus:outline-none transition-transform hover:scale-105">
+                                <div class="w-10 h-10 bg-teal-100 text-teal-700 rounded-full flex items-center justify-center font-bold border-2 border-teal-200 shadow-sm">
+                                    {{ user.username|make_list|first|upper }}
+                                </div>
+                            </button>
+                            
+                            <!-- The Dropdown Card -->
+                            <div id="profileDropdownMenu" class="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 hidden z-50 transform origin-top-right transition-all opacity-0 scale-95">
+                                <div class="px-5 py-3 border-b border-gray-50 mb-2">
+                                    <p class="text-sm font-black text-gray-800">{{ user.username }}</p>
+                                    <p class="text-xs text-gray-400 font-medium truncate">{{ user.email|default:"No email provided" }}</p>
+                                </div>
+                                
+                                <a href="{% url 'profile' %}" class="px-5 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-teal-600 font-bold flex items-center gap-3 transition-colors">
+                                    <i data-lucide="user-cog" class="w-4 h-4 text-gray-400"></i> Manage Profile
+                                </a>
+                                
+                                <a href="{% url 'download_report' %}" class="px-5 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-blue-600 font-bold flex items-center gap-3 transition-colors">
+                                    <i data-lucide="file-down" class="w-4 h-4 text-gray-400"></i> Download PDF
+                                </a>
+                                
+                                <div class="border-t border-gray-50 mt-2 pt-2">
+                                    <!-- Use a POST form for secure logouts -->
+                                    <form action="{% url 'logout' %}" method="post" class="w-full">
+                                        {% csrf_token %}
+                                        <button type="submit" class="w-full text-left px-5 py-2.5 text-sm text-red-500 hover:bg-red-50 font-bold flex items-center gap-3 transition-colors">
+                                            <i data-lucide="log-out" class="w-4 h-4 text-red-400"></i> Sign Out
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-gray-600 hover:text-teal-600 font-bold transition-colors">Sign In</a>
+                        <a href="{% url 'register' %}" class="bg-teal-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-teal-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">Get Started</a>
+                    {% endif %}
+                    
+                    <!-- Theme Toggle Button -->
+                    <button id="theme-toggle" type="button" class="ml-2 p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-all duration-300 focus:outline-none shadow-sm dark-toggle-btn border border-transparent">
+                        <i id="theme-toggle-dark-icon" data-lucide="moon" class="w-5 h-5 text-gray-700"></i>
+                        <i id="theme-toggle-light-icon" data-lucide="sun" class="w-5 h-5 text-yellow-400 hidden drop-shadow-md"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Injection -->
+    <main class="flex-grow pt-20">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-100 py-8 text-center text-gray-500 transition-colors duration-300 mt-auto">
+        <div class="flex items-center justify-center gap-2 mb-2">
+            <i data-lucide="heart-pulse" class="w-5 h-5 text-teal-500"></i>
+            <span class="font-bold text-gray-700">HealthyIO</span>
+        </div>
+        <p class="text-sm">Empowering your wellness journey with AI.</p>
+    </footer>
+
+    <!-- Initialize Icons -->
+    <script>lucide.createIcons();</script>
+
+    <!-- Dark Mode & Dropdown Logic -->
+    <script>
+        // Profile Dropdown Logic
+        const dropdownMenu = document.getElementById('profileDropdownMenu');
+        
+        function toggleProfileDropdown() {
+            if (dropdownMenu.classList.contains('hidden')) {
+                dropdownMenu.classList.remove('hidden');
+                // Small delay to allow display:block to apply before animating opacity
+                setTimeout(() => {
+                    dropdownMenu.classList.remove('opacity-0', 'scale-95');
+                    dropdownMenu.classList.add('opacity-100', 'scale-100');
+                }, 10);
+            } else {
+                dropdownMenu.classList.remove('opacity-100', 'scale-100');
+                dropdownMenu.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    dropdownMenu.classList.add('hidden');
+                }, 150); // wait for animation to finish
+            }
+        }
+
+        // Close dropdown when clicking anywhere else on the screen
+        window.addEventListener('click', function(e) {
+            const wrapper = document.getElementById('profileDropdownWrapper');
+            if (wrapper && !wrapper.contains(e.target) && !dropdownMenu.classList.contains('hidden')) {
+                toggleProfileDropdown();
+            }
+        });
+
+        // Theme Toggle Logic
+        document.addEventListener("DOMContentLoaded", function() {
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const darkIcon = document.getElementById('theme-toggle-dark-icon');
+            const lightIcon = document.getElementById('theme-toggle-light-icon');
+            const body = document.body;
+
+            // Load saved theme
+            if (localStorage.getItem('app-theme') === 'dark') {
+                body.classList.add('dark-theme');
+                darkIcon.classList.add('hidden');
+                lightIcon.classList.remove('hidden');
+            }
+
+            // Toggle Click Event
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', function() {
+                    body.classList.toggle('dark-theme');
+                    if (body.classList.contains('dark-theme')) {
+                        localStorage.setItem('app-theme', 'dark');
+                        darkIcon.classList.add('hidden');
+                        lightIcon.classList.remove('hidden');
+                    } else {
+                        localStorage.setItem('app-theme', 'light');
+                        darkIcon.classList.remove('hidden');
+                        lightIcon.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
