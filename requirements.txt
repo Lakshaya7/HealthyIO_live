@@ -8,3 +8,4 @@ groq==0.4.2
 python-dotenv==1.0.1
 dj-database-url
 psycopg2-binary
+gunicorn
