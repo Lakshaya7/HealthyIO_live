@@ -76,7 +76,9 @@ WSGI_APPLICATION = 'healthyio_project.wsgi.application'
 # Uses dj_database_url for PostgreSQL in production, falls back to SQLite locally
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
+        # This will use Render's database in production, but fall back to a 
+        # local SQLite file if you ever test on your computer again!
+        default=os.environ.get('DATABASE_URL', 'sqlite:///db.sqlite3'),
         conn_max_age=600
     )
 }
