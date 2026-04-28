@@ -11,3 +11,5 @@ python manage.py collectstatic --no-input
 # Setup the PostgreSQL database automatically!
 python manage.py makemigrations core
 python manage.py migrate
+
+python manage.py createsuperuser --noinput || true
