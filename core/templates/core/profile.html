@@ -4,15 +4,16 @@
 <div class="pt-10 pb-12 px-4 max-w-6xl mx-auto min-h-screen">
     
     <div class="mb-8">
-        <h1 class="text-3xl font-black text-gray-800 tracking-tight">Your Profile</h1>
-        <p class="text-gray-500 font-medium mt-1">Manage account details and clinical medical data.</p>
+        <h1 class="text-3xl font-black text-gray-800 tracking-tight">Your Health Profile</h1>
+        <p class="text-gray-500 font-medium mt-1">Manage your identity, biological metrics, and clinical medical data.</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- LEFT COLUMN: Account Form -->
-        <div class="lg:col-span-2 bg-white rounded-[2rem] shadow-xl border border-gray-100 overflow-hidden">
+        <!-- LEFT COLUMN: The Master Form -->
+        <div class="lg:col-span-2 bg-white rounded-[2rem] shadow-xl border border-gray-100 overflow-hidden transition-colors duration-300">
             
+            <!-- Header Banner -->
             <div class="bg-gradient-to-r from-teal-500 to-emerald-600 p-8 text-white flex items-center gap-6">
                 <div class="w-24 h-24 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-4xl font-black shadow-inner border-2 border-white/40 shrink-0">
                     {{ user.username|make_list|first|upper }}
@@ -24,101 +25,69 @@
             </div>
 
             <div class="p-8">
-                <form method="POST" class="space-y-6">
+                <form method="POST" class="space-y-8">
                     {% csrf_token %}
                     
-                    <!-- Basic Info -->
-                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2"><i data-lucide="settings-2" class="w-5 h-5 text-teal-600"></i> Account Details</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">First Name</label>{{ u_form.first_name }}</div>
-                        <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Last Name</label>{{ u_form.last_name }}</div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- SECTION 1: Identity -->
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-100 pb-2">
+                            <i data-lucide="user" class="w-5 h-5 text-teal-600"></i> Identity
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">First Name</label>{{ u_form.first_name }}</div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Last Name</label>{{ u_form.last_name }}</div>
+                        </div>
                         <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Email Address</label>{{ u_form.email }}</div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Date of Birth</label>
-                            <input type="date" id="dobInput" oninput="calculateStats()" class="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all text-gray-700 font-medium">
+                    </div>
+
+                    <!-- SECTION 2: Biological Data -->
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-100 pb-2">
+                            <i data-lucide="dna" class="w-5 h-5 text-indigo-500"></i> Biological Data
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Biological Gender</label>
+                                {{ p_form.gender }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Date of Birth</label>
+                                <!-- The ID is important here so our JS can calculate age automatically -->
+                                <div id="dob-wrapper">{{ p_form.date_of_birth }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Menstrual Cycle Field -->
+                        <div id="lmp-container" class="hidden mt-6 bg-pink-50/50 p-5 rounded-2xl border border-pink-100 transition-all duration-300">
+                            <label class="block text-sm font-bold text-pink-800 mb-1 flex items-center gap-2">
+                                <i data-lucide="calendar-heart" class="w-4 h-4"></i> First Day of Last Menstrual Period
+                            </label>
+                            <p class="text-xs text-pink-600 mb-3 font-medium">Used by AI to predict next cycle and adapt fitness/mood suggestions.</p>
+                            {{ p_form.last_menstrual_period }}
                         </div>
                     </div>
 
-                    <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-8">
-        
-        <div class="text-center mb-8">
-            <h2 class="text-3xl font-extrabold text-gray-900">Your Health Profile</h2>
-            <p class="mt-2 text-sm text-gray-600">
-                Update your details to help the AI Coach provide highly personalized insights.
-            </p>
-        </div>
+                    <!-- SECTION 3: Clinical Medical Data -->
+                    <div>
+                        <h3 class="text-xl font-bold text-rose-600 mb-6 flex items-center gap-2 border-b border-rose-100 pb-2">
+                            <i data-lucide="stethoscope" class="w-5 h-5"></i> Clinical Medical Data
+                        </h3>
+                        <p class="text-sm text-gray-500 font-medium mb-6 bg-rose-50 p-4 rounded-xl border border-rose-100">
+                            <i data-lucide="info" class="w-4 h-4 inline-block -mt-0.5 mr-1 text-rose-500"></i>
+                            The AI Coach uses this data to adjust your daily health scores and ensure food recommendations don't conflict with your medications.
+                        </p>
 
-        <form method="POST" action="">
-            {% csrf_token %}
-
-            <div class="space-y-6">
-                <!-- Gender Field -->
-                <div>
-                    <label for="{{ form.gender.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                        Biological Gender
-                    </label>
-                    <div class="mt-1">
-                        {{ form.gender }}
-                    </div>
-                </div>
-
-                <!-- Date of Birth Field -->
-                <div>
-                    <label for="{{ form.date_of_birth.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                        Date of Birth
-                    </label>
-                    <p class="text-xs text-gray-500 mb-1">Used to tailor advice for your exact age group.</p>
-                    <div class="mt-1">
-                        {{ form.date_of_birth }}
-                    </div>
-                </div>
-
-                <!-- Menstrual Cycle Field (Hidden by default using Tailwind's 'hidden' class) -->
-                <div id="lmp-container" class="hidden bg-pink-50 p-4 rounded-lg border border-pink-200 mt-4 transition-all duration-300">
-                    <label for="{{ form.last_menstrual_period.id_for_label }}" class="block text-sm font-medium text-pink-800">
-                        First Day of Last Menstrual Period
-                    </label>
-                    <p class="text-xs text-pink-600 mb-2">
-                        Used to predict your next cycle and adapt fitness/mood suggestions.
-                    </p>
-                    <div class="mt-1">
-                        {{ form.last_menstrual_period }}
-                    </div>
-                </div>
-            </div>
-        </form>
-
-    </div>
-</div>
-
-                    <!-- Medical AI Context Section -->
-                    <div class="relative my-10">
-                        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-100"></div></div>
-                        <div class="relative flex justify-center">
-                            <span class="px-4 bg-white text-rose-500 text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                                <i data-lucide="stethoscope" class="w-4 h-4"></i> Clinical Medical Data
-                            </span>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Health Issues</label>{{ p_form.health_issues }}</div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Stage / Severity</label>{{ p_form.issue_stage }}</div>
                         </div>
+                        <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Current Medications</label>{{ p_form.medications }}</div>
                     </div>
 
-                    <p class="text-sm text-gray-500 font-medium mb-6 bg-rose-50 p-4 rounded-xl border border-rose-100">
-                        <i data-lucide="info" class="w-4 h-4 inline-block -mt-0.5 mr-1 text-rose-500"></i>
-                        The AI Coach uses this data to adjust your daily health scores and provide safe, personalized food recommendations.
-                    </p>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Health Issues</label>{{ p_form.health_issues }}</div>
-                        <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Stage / Severity</label>{{ p_form.issue_stage }}</div>
-                    </div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-2 pl-1">Current Medications</label>{{ p_form.medications }}</div>
-
+                    <!-- Submit -->
                     <div class="pt-6 border-t border-gray-100 flex gap-4">
-                        <button type="submit" class="flex-1 py-4 bg-teal-600 text-white font-black rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2">
-                            Save Profile & Medical Data
+                        <button type="submit" class="w-full py-4 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2">
+                            <i data-lucide="save" class="w-5 h-5"></i> Save All Profile Data
                         </button>
                     </div>
                 </form>
@@ -131,7 +100,7 @@
                 <h3 class="text-lg font-bold text-gray-300 mb-6 flex items-center gap-2"><i data-lucide="scale" class="w-5 h-5 text-teal-400"></i> Body Metrics</h3>
 
                 <div class="text-center mb-6">
-                    <div class="inline-flex items-center justify-center w-32 h-32 rounded-full border-8 border-gray-700 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] bg-gray-800">
+                    <div class="inline-flex items-center justify-center w-32 h-32 rounded-full border-8 border-gray-700 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] bg-gray-800 transition-all duration-500" id="bmiCircle">
                         <span id="bmiValue" class="text-4xl font-black text-white">--</span>
                     </div>
                     <div id="bmiCategory" class="mt-4 text-lg font-bold tracking-widest uppercase text-gray-400">Enter Stats</div>
@@ -155,11 +124,10 @@
                     </div>
                 </div>
             </div>
-
             
             <form action="{% url 'logout' %}" method="post">
                 {% csrf_token %}
-                <button type="submit" class="w-full py-3 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 flex items-center justify-center gap-2">
+                <button type="submit" class="w-full py-3 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 flex items-center justify-center gap-2 border border-red-100 transition-colors">
                     <i data-lucide="log-out" class="w-5 h-5"></i> Sign Out
                 </button>
             </form>
@@ -169,71 +137,106 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        if(localStorage.getItem('userDob')) document.getElementById('dobInput').value = localStorage.getItem('userDob');
-        if(localStorage.getItem('userWeight')) document.getElementById('weightInput').value = localStorage.getItem('userWeight');
-        if(localStorage.getItem('userHeight')) document.getElementById('heightInput').value = localStorage.getItem('userHeight');
-        calculateStats();
-    });
-
-    function calculateStats() {
-        const dobString = document.getElementById('dobInput').value;
-        const weight = parseFloat(document.getElementById('weightInput').value);
-        const height = parseFloat(document.getElementById('heightInput').value);
-        const ageDisplay = document.getElementById('ageDisplay');
-        const bmiDisplay = document.getElementById('bmiValue');
-        const category = document.getElementById('bmiCategory');
-
-        // Handle Age
-        if (dobString) {
-            localStorage.setItem('userDob', dobString);
-            const dob = new Date(dobString);
-            const today = new Date();
-            let age = today.getFullYear() - dob.getFullYear();
-            if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) age--;
-            ageDisplay.innerText = age >= 0 ? `${age} yrs` : "-- yrs";
-        }
-
-        // Handle BMI
-        if (weight > 0 && height > 0) {
-            localStorage.setItem('userWeight', weight);
-            localStorage.setItem('userHeight', height);
-            const bmi = (weight / Math.pow(height / 100, 2)).toFixed(1);
-            bmiDisplay.innerText = bmi;
-
-            if (bmi < 18.5) { category.innerText = "Underweight"; category.className = "mt-4 text-lg font-bold uppercase text-blue-400"; bmiDisplay.parentElement.style.borderColor = "#3b82f6"; bmiDisplay.parentElement.style.boxShadow = "0 0 30px rgba(59,130,246,0.3)"; }
-            else if (bmi < 24.9) { category.innerText = "Normal Weight"; category.className = "mt-4 text-lg font-bold uppercase text-emerald-400"; bmiDisplay.parentElement.style.borderColor = "#10b981"; bmiDisplay.parentElement.style.boxShadow = "0 0 30px rgba(16,185,129,0.3)"; }
-            else if (bmi < 29.9) { category.innerText = "Overweight"; category.className = "mt-4 text-lg font-bold uppercase text-yellow-400"; bmiDisplay.parentElement.style.borderColor = "#eab308"; bmiDisplay.parentElement.style.boxShadow = "0 0 30px rgba(234,179,8,0.3)"; }
-            else { category.innerText = "Obese"; category.className = "mt-4 text-lg font-bold uppercase text-red-400"; bmiDisplay.parentElement.style.borderColor = "#ef4444"; bmiDisplay.parentElement.style.boxShadow = "0 0 30px rgba(239,68,68,0.3)"; }
-        } else {
-            bmiDisplay.innerText = "--"; category.innerText = "Enter Stats"; category.className = "mt-4 text-lg font-bold uppercase text-gray-400";
-            bmiDisplay.parentElement.style.borderColor = "#374151"; bmiDisplay.parentElement.style.boxShadow = "inset 0 0 20px rgba(0,0,0,0.5)";
-        }
-    }
-    document.addEventListener("DOMContentLoaded", function() {
+        // --- 1. BIOLOGICAL TOGGLE LOGIC (Menstrual Cycle) ---
         const genderSelect = document.getElementById("id_gender");
         const lmpContainer = document.getElementById("lmp-container");
         const lmpInput = document.getElementById("id_last_menstrual_period");
 
         function toggleCycleField() {
-            if (!genderSelect) return;
-            
-            // 'F' is the exact value saved in our models.py choices
+            if (!genderSelect || !lmpContainer) return;
             if (genderSelect.value === 'F') {
                 lmpContainer.classList.remove('hidden');
             } else {
                 lmpContainer.classList.add('hidden');
-                // Clear the date if they switch away from Female so it doesn't save bad data
-                if (lmpInput) {
-                    lmpInput.value = '';
-                }
+                if (lmpInput) lmpInput.value = ''; // Clear value if not female
             }
         }
-        toggleCycleField();
         
-        // Listen for user changing the dropdown
         if (genderSelect) {
+            toggleCycleField(); // Run on load
             genderSelect.addEventListener("change", toggleCycleField);
         }
+
+        // --- 2. SMART BMI DASHBOARD LOGIC ---
+        // Load weight/height from local storage
+        if(localStorage.getItem('userWeight')) document.getElementById('weightInput').value = localStorage.getItem('userWeight');
+        if(localStorage.getItem('userHeight')) document.getElementById('heightInput').value = localStorage.getItem('userHeight');
+        
+        // Listen to the Django Date of Birth field to calculate age instantly
+        const dobInput = document.getElementById('id_date_of_birth');
+        if (dobInput) {
+            dobInput.addEventListener('input', calculateStats);
+        }
+
+        calculateStats(); // Run math on load
     });
+
+    function calculateStats() {
+        // Find the Django DOB field
+        const dobInput = document.getElementById('id_date_of_birth');
+        const dobString = dobInput ? dobInput.value : '';
+        
+        const weight = parseFloat(document.getElementById('weightInput').value);
+        const height = parseFloat(document.getElementById('heightInput').value);
+        
+        const ageDisplay = document.getElementById('ageDisplay');
+        const bmiDisplay = document.getElementById('bmiValue');
+        const category = document.getElementById('bmiCategory');
+        const bmiCircle = document.getElementById('bmiCircle');
+
+        // Handle Age Math
+        if (dobString) {
+            const dob = new Date(dobString);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) {
+                age--;
+            }
+            ageDisplay.innerText = age >= 0 ? `${age} yrs` : "-- yrs";
+        } else {
+            ageDisplay.innerText = "-- yrs";
+        }
+
+        // Handle BMI Math
+        if (weight > 0 && height > 0) {
+            localStorage.setItem('userWeight', weight);
+            localStorage.setItem('userHeight', height);
+            
+            const bmi = (weight / Math.pow(height / 100, 2)).toFixed(1);
+            bmiDisplay.innerText = bmi;
+
+            // Apply glowing colors based on BMI category
+            if (bmi < 18.5) { 
+                category.innerText = "Underweight"; 
+                category.className = "mt-4 text-lg font-bold uppercase text-blue-400"; 
+                bmiCircle.style.borderColor = "#3b82f6"; 
+                bmiCircle.style.boxShadow = "0 0 30px rgba(59,130,246,0.3)"; 
+            }
+            else if (bmi < 24.9) { 
+                category.innerText = "Normal Weight"; 
+                category.className = "mt-4 text-lg font-bold uppercase text-emerald-400"; 
+                bmiCircle.style.borderColor = "#10b981"; 
+                bmiCircle.style.boxShadow = "0 0 30px rgba(16,185,129,0.3)"; 
+            }
+            else if (bmi < 29.9) { 
+                category.innerText = "Overweight"; 
+                category.className = "mt-4 text-lg font-bold uppercase text-yellow-400"; 
+                bmiCircle.style.borderColor = "#eab308"; 
+                bmiCircle.style.boxShadow = "0 0 30px rgba(234,179,8,0.3)"; 
+            }
+            else { 
+                category.innerText = "Obese"; 
+                category.className = "mt-4 text-lg font-bold uppercase text-red-400"; 
+                bmiCircle.style.borderColor = "#ef4444"; 
+                bmiCircle.style.boxShadow = "0 0 30px rgba(239,68,68,0.3)"; 
+            }
+        } else {
+            bmiDisplay.innerText = "--"; 
+            category.innerText = "Enter Stats"; 
+            category.className = "mt-4 text-lg font-bold uppercase text-gray-400";
+            bmiCircle.style.borderColor = "#374151"; 
+            bmiCircle.style.boxShadow = "inset 0 0 20px rgba(0,0,0,0.5)";
+        }
+    }
 </script>
 {% endblock %}
