@@ -56,24 +56,28 @@ def tips(request):
 
 @login_required
 def profile(request):
+    from django.contrib import messages
+    from .models import UserProfile
+    from .forms import UserProfileForm
+    
+    # Ensure profile exists to prevent crashes
     profile_obj, _ = UserProfile.objects.get_or_create(user=request.user)
     
     if request.method == 'POST':
-        u_form = UserUpdateForm(request.POST, instance=request.user)
-        p_form = UserProfileForm(request.POST, instance=profile_obj)
-        if u_form.is_valid() and p_form.is_valid():
-            u_form.save()
-            p_form.save()
-            messages.success(request, 'Profile and Medical Data updated successfully!')
-            return redirect('profile')
-    else:
-        u_form = UserUpdateForm(instance=request.user)
-        p_form = UserProfileForm(instance=profile_obj)
+        # Save Identity fields (Name)
+        request.user.first_name = request.POST.get('first_name', '')
+        request.user.last_name = request.POST.get('last_name', '')
+        request.user.save()
         
-    return render(request, 'core/profile.html', {
-        'u_form': u_form,
-        'p_form': p_form
-    })
+        # Save Biological and Medical Data (Form)
+        form = UserProfileForm(request.POST, instance=profile_obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile saved successfully!")
+    else:
+        form = UserProfileForm(instance=profile_obj)
+        
+    return render(request, 'core/profile.html', {'form': form})
 
 
 @login_required
