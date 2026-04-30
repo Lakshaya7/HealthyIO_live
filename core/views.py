@@ -392,7 +392,7 @@ def download_report(request):
 
     return FileResponse(buffer, as_attachment=True, filename=f"HealthyIO_Report_{request.user.username}.pdf")
 
-def get_ai_coach_response(user, user_message):
+def ai_coach(user, user_message):
     profile = user.userprofile
     
     # 1. Calculate Exact Age using Python
