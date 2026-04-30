@@ -470,3 +470,45 @@ def ai_coach(request):
         error = f"Coach is currently unavailable. Error: {str(e)}"
         
     return render(request, 'core/ai_analysis.html', {'ai_response': ai_response, 'error': error})
+
+
+@login_required
+def healy_chat(request):
+    import json
+    from django.http import JsonResponse
+    from groq import Groq
+    import os
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user_message = data.get('message', '')
+
+            # Healy's Strict System Prompt
+            system_prompt = """
+            You are Healy, a friendly, supportive, and highly knowledgeable AI health and fitness assistant for the HealthyIO app.
+            
+            CRITICAL RULES:
+            1. ONLY answer questions related to health, fitness, nutrition, medicine, mental wellness, and exercise.
+            2. If the user asks about ANYTHING else (e.g., coding, politics, movies, math, random chat), you MUST politely decline and say: "I am Healy, your dedicated health assistant. I can only help you with health, nutrition, and fitness topics!"
+            3. Keep your answers concise, practical, and conversational. Do not write essays.
+            4. Use simple HTML tags like <b>, <ul>, <li>, and <br> for formatting. Do NOT use markdown like ** or #.
+            """
+
+            client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+            response = client.chat.completions.create(
+                model="llama3-8b-8192", # Fast and responsive model
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message}
+                ],
+                temperature=0.3, # Low temperature keeps it focused on facts
+            )
+            
+            ai_reply = response.choices[0].message.content
+            return JsonResponse({'status': 'success', 'reply': ai_reply})
+            
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'reply': "I'm having a little trouble connecting to my servers right now. Let's try again in a moment!"})
+            
+    return JsonResponse({'status': 'error', 'reply': 'Invalid request'})

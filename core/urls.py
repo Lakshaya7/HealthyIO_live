@@ -25,4 +25,5 @@ urlpatterns = [
     path('scripty-log/', views.scripty_log, name='scripty_log'),
     path('food-search/', views.food_search, name='food_search'),
     path('game/', views.game, name='game'),
+    path('healy-chat/', views.healy_chat, name='healy_chat'),
 ]

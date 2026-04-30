@@ -1,0 +1,175 @@
+<!-- Floating Button -->
+<button id="healy-toggle" class="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full shadow-2xl flex items-center justify-center text-white hover:scale-110 hover:shadow-emerald-500/50 transition-all duration-300 z-50">
+    <i data-lucide="bot" class="w-8 h-8"></i>
+</button>
+
+<!-- Chat Window -->
+<div id="healy-panel" class="fixed bottom-28 right-6 w-[350px] sm:w-[400px] h-[500px] bg-white rounded-3xl shadow-2xl flex-col overflow-hidden z-50 transform transition-all duration-300 scale-0 opacity-0 origin-bottom-right">
+    
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-teal-500 to-emerald-600 p-4 text-white flex justify-between items-center shadow-md z-10 relative">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <h3 class="font-black text-lg leading-tight">Healy AI</h3>
+                <p class="text-teal-100 text-xs font-medium">Online & Ready</p>
+            </div>
+        </div>
+        <button id="healy-close" class="text-teal-100 hover:text-white transition-colors">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+    </div>
+
+    <!-- Chat Messages Area -->
+    <div id="healy-messages" class="flex-1 p-4 overflow-y-auto bg-gray-50 flex flex-col gap-4">
+        <!-- Welcome Message -->
+        <div class="flex items-start gap-2 max-w-[85%]">
+            <div class="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center shrink-0">
+                <i data-lucide="bot" class="w-4 h-4"></i>
+            </div>
+            <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-700 border border-gray-100">
+                Hi! I'm Healy, your personal health assistant. How can I support your wellness today?
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Prompts (Pre-choices) -->
+    <div class="px-4 py-2 bg-white border-t border-gray-100 flex gap-2 overflow-x-auto hide-scrollbar">
+        <button onclick="sendQuickPrompt('Suggest a 15-minute home workout.')" class="whitespace-nowrap px-3 py-1.5 bg-teal-50 text-teal-700 text-xs font-bold rounded-full hover:bg-teal-100 transition-colors border border-teal-100">🏃‍♂️ Quick Workout</button>
+        <button onclick="sendQuickPrompt('What are some healthy, high-protein snacks?')" class="whitespace-nowrap px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full hover:bg-emerald-100 transition-colors border border-emerald-100">🥗 Healthy Snacks</button>
+        <button onclick="sendQuickPrompt('Give me a quick breathing exercise for stress.')" class="whitespace-nowrap px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-bold rounded-full hover:bg-blue-100 transition-colors border border-blue-100">🧘‍♀️ Stress Relief</button>
+    </div>
+
+    <!-- Input Area -->
+    <div class="p-4 bg-white border-t border-gray-100">
+        <div class="flex gap-2">
+            <input type="text" id="healy-input" placeholder="Ask about fitness, diet, sleep..." class="flex-1 bg-gray-100 text-sm rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all">
+            <button id="healy-send" class="w-12 h-12 bg-teal-500 text-white rounded-xl flex items-center justify-center hover:bg-teal-600 transition-colors shadow-md">
+                <i data-lucide="send" class="w-5 h-5 ml-1"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Hides the scrollbar for the quick prompts but keeps it scrollable */
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const toggleBtn = document.getElementById('healy-toggle');
+        const closeBtn = document.getElementById('healy-close');
+        const panel = document.getElementById('healy-panel');
+        const input = document.getElementById('healy-input');
+        const sendBtn = document.getElementById('healy-send');
+        const messagesDiv = document.getElementById('healy-messages');
+
+        // Toggle visibility with animation
+        function toggleChat() {
+            if (panel.classList.contains('scale-0')) {
+                panel.classList.remove('scale-0', 'opacity-0');
+                panel.classList.add('flex');
+            } else {
+                panel.classList.add('scale-0', 'opacity-0');
+                setTimeout(() => panel.classList.remove('flex'), 300); // Wait for animation
+            }
+        }
+
+        toggleBtn.addEventListener('click', toggleChat);
+        closeBtn.addEventListener('click', toggleChat);
+
+        // Utility to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Add message to UI
+        function appendMessage(sender, text) {
+            const isUser = sender === 'user';
+            const msgHTML = `
+                <div class="flex items-end gap-2 max-w-[85%] ${isUser ? 'ml-auto flex-row-reverse' : ''}">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isUser ? 'bg-gray-800 text-white' : 'bg-teal-100 text-teal-600'}">
+                        <i data-lucide="${isUser ? 'user' : 'bot'}" class="w-4 h-4"></i>
+                    </div>
+                    <div class="p-3 rounded-2xl shadow-sm text-sm border ${isUser ? 'bg-gray-800 text-white rounded-br-none border-gray-700' : 'bg-white text-gray-700 rounded-bl-none border-gray-100'}">
+                        ${text}
+                    </div>
+                </div>
+            `;
+            messagesDiv.insertAdjacentHTML('beforeend', msgHTML);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            lucide.createIcons(); // Re-render new icons
+        }
+
+        // Add loading bubble
+        function appendLoading() {
+            const loadingHTML = `
+                <div id="healy-loading" class="flex items-start gap-2 max-w-[85%]">
+                    <div class="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="bot" class="w-4 h-4"></i>
+                    </div>
+                    <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm text-gray-500 border border-gray-100 flex gap-1">
+                        <span class="animate-bounce">.</span><span class="animate-bounce" style="animation-delay: 0.2s">.</span><span class="animate-bounce" style="animation-delay: 0.4s">.</span>
+                    </div>
+                </div>
+            `;
+            messagesDiv.insertAdjacentHTML('beforeend', loadingHTML);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            lucide.createIcons();
+        }
+
+        // Handle Sending Logic
+        async function sendMessage(messageText) {
+            if (!messageText.trim()) return;
+            
+            appendMessage('user', messageText);
+            input.value = '';
+            appendLoading();
+
+            try {
+                const response = await fetch("{% url 'healy_chat' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ message: messageText })
+                });
+                
+                const data = await response.json();
+                document.getElementById('healy-loading').remove();
+                appendMessage('bot', data.reply);
+                
+            } catch (error) {
+                document.getElementById('healy-loading').remove();
+                appendMessage('bot', "Whoops! Network error. Please try again.");
+            }
+        }
+
+        // Expose Quick Prompt function to global scope so buttons can use it
+        window.sendQuickPrompt = function(text) {
+            sendMessage(text);
+        };
+
+        // Listen for Send Button and Enter Key
+        sendBtn.addEventListener('click', () => sendMessage(input.value));
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage(input.value);
+        });
+    });
+</script>
