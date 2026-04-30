@@ -43,21 +43,15 @@ class UserUpdateForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['gender', 'date_of_birth', 'last_menstrual_period']
+        fields = ['gender', 'date_of_birth', 'last_menstrual_period', 'health_issues', 'issue_stage', 'medications']
         
-        # This is the magic that turns boring text boxes into Calendar Date Pickers!
         widgets = {
-            'gender': forms.Select(attrs={
-                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border'
-            }),
-            'date_of_birth': forms.DateInput(attrs={
-                'type': 'date', # Forces the browser calendar UI
-                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border'
-            }),
-            'last_menstrual_period': forms.DateInput(attrs={
-                'type': 'date', # Forces the browser calendar UI
-                'class': 'mt-1 block w-full rounded-md border-pink-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm p-2 border'
-            }),
+            'gender': forms.Select(attrs={'class': 'w-full px-4 py-3 rounded-xl bg-white border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all'}),
+            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'w-full px-4 py-3 rounded-xl bg-white border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all'}),
+            'last_menstrual_period': forms.DateInput(attrs={'type': 'date', 'class': 'w-full px-4 py-3 rounded-xl bg-pink-50 border border-pink-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition-all'}),
+            'health_issues': forms.TextInput(attrs={'placeholder': 'e.g., Diabetes, Hypertension', 'class': 'w-full px-4 py-3 rounded-xl bg-white border border-gray-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 outline-none transition-all'}),
+            'issue_stage': forms.TextInput(attrs={'placeholder': 'e.g., Type 2, Mild', 'class': 'w-full px-4 py-3 rounded-xl bg-white border border-gray-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 outline-none transition-all'}),
+            'medications': forms.TextInput(attrs={'placeholder': 'e.g., Metformin (500mg)', 'class': 'w-full px-4 py-3 rounded-xl bg-white border border-gray-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 outline-none transition-all'}),
         }
 
     def __init__(self, *args, **kwargs):

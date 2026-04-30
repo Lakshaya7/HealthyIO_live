@@ -137,7 +137,11 @@ def add_log(request):
 
 @login_required
 def edit_log(request, log_id):
-    from django.shortcuts import get_object_or_404
+    from django.shortcuts import get_object_or_404, redirect
+    from django.contrib import messages
+    from .models import HealthLog
+    from .forms import HealthLogForm
+
     log = get_object_or_404(HealthLog, id=log_id, user=request.user)
     
     if request.method == 'POST':
@@ -158,6 +162,7 @@ def edit_log(request, log_id):
         'show_modal': False 
     })
 
+
 @login_required
 def delete_log(request, log_id):
     from django.shortcuts import get_object_or_404
@@ -177,6 +182,7 @@ def food_search(request):
     if request.method == 'POST':
         food_query = request.POST.get('food_query', '')
         
+        from django.db.models import Avg
         logs = HealthLog.objects.filter(user=request.user)
         stats = logs.aggregate(avg_score=Avg('health_score'), avg_calories=Avg('calories_intake'))
         profile_obj, _ = UserProfile.objects.get_or_create(user=request.user)
@@ -219,6 +225,7 @@ def food_search(request):
                 temperature=0.2,
             )
             raw = response.choices[0].message.content
+            import re, json
             cleaned = re.sub(r'```json\n|\n```|```', '', raw).strip()
             data = json.loads(cleaned)
         except Exception as e:
@@ -226,7 +233,7 @@ def food_search(request):
             
     return render(request, 'core/food_search.html', {'data': data})
 
-
+# ... existing code (ai_coach stays the same) ...
 
 
 # ... your existing views ...
@@ -392,70 +399,70 @@ def download_report(request):
 
     return FileResponse(buffer, as_attachment=True, filename=f"HealthyIO_Report_{request.user.username}.pdf")
 
-def ai_coach(user, user_message):
-    """
-    Takes the user's hidden biological data (age, gender, cycle) 
-    and injects it into the AI's brain before responding.
-    """
+@login_required
+def ai_coach(request):
+    import os
+    from groq import Groq
+    import re
+    from datetime import date, timedelta
     
-    # 1. Grab the user's profile data
-    # (If using a different app name, ensure the profile is created upon signup)
+    ai_response = None
+    error = None
+    
     try:
-        profile = user.userprofile
-    except:
-        profile = None
-
-    age_context = "The user has not provided their age."
-    cycle_context = ""
-
-    if profile:
-        # 2. Calculate Exact Age using Python
+        profile = request.user.userprofile
+        
+        # 1. Age Calculation
+        age_context = "Age not provided."
         if profile.date_of_birth:
             today = date.today()
-            # Math to calculate exact age factoring in leap years/months
             age = today.year - profile.date_of_birth.year - ((today.month, today.day) < (profile.date_of_birth.month, profile.date_of_birth.day))
+            age_context = f"User is {age} years old."
             
-            # Inject age-specific rules for the AI
-            if age < 6:
-                age_context = f"The user is a young child ({age} years old). Focus heavily on pediatrician-recommended vaccination schedules, early childhood nutrition, and child-safe remedies. Speak to the parent/guardian."
-            elif age <= 17:
-                age_context = f"The user is a teenager ({age} years old). Focus on puberty, adolescent mental health, academic stress, and active lifestyles."
-            elif age > 60:
-                age_context = f"The user is a senior ({age} years old). Focus on joint health, arthritis prevention, preventive health screenings, and gentle mobility."
-            else:
-                age_context = f"The user is an adult ({age} years old). Provide standard adult wellness and preventative care advice."
-
-        # 3. Calculate Menstrual Cycle (Baseline 28 days)
+        # 2. Cycle Calculation
+        cycle_context = ""
         if profile.gender == 'F' and profile.last_menstrual_period:
             next_cycle = profile.last_menstrual_period + timedelta(days=28)
-            cycle_context = f"""
-            The user is female. Her last menstrual period started on {profile.last_menstrual_period}. 
-            Her next predicted cycle starts around {next_cycle}. 
-            Please tailor your wellness, mood, energy, and exercise advice specifically to this phase of her menstrual cycle.
-            """
+            cycle_context = f"Female. Last period: {profile.last_menstrual_period}. Next predicted: {next_cycle}. Adapt mood/fitness advice to this."
 
-    # 4. Build the Master System Prompt
-    system_prompt = f"""
-    You are the HealthyIO AI Health & Wellness Coach. 
-    You must follow these rules based on the user's biological data:
-    
-    {age_context}
-    
-    {cycle_context}
-    
-    Always provide empathetic, scientifically accurate advice based on these specific demographics. 
-    Always remind them to consult a real medical doctor for serious or life-threatening issues.
-    """
+        # 3. Master Medical Context
+        med_context = f"""
+        CLINICAL DATA:
+        - Health Issues: {profile.health_issues or 'None'}
+        - Stage/Severity: {profile.issue_stage or 'N/A'}
+        - Medications: {profile.medications or 'None'}
+        
+        BIOLOGICAL DATA:
+        - {age_context}
+        - Gender: {profile.get_gender_display() or 'N/A'}
+        - {cycle_context}
+        """
+        
+        logs = HealthLog.objects.filter(user=request.user).order_by('-date')[:7]
+        log_text = "\n".join([f"{l.date}: Sleep {l.sleep_hours}h, Water {l.water_intake} glasses, Exercise {l.exercise_type} ({l.calories_burned} kcal), Diet: In {l.calories_intake}kcal" for l in logs])
 
-    # 5. Call the Groq API (Note: No proxies argument!)
-    client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-    
-    response = client.chat.completions.create(
-        model="llama3-8b-8192", # Feel free to upgrade to 'llama3-70b-8192' for smarter responses
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_message}
-        ]
-    )
-    
-    return response.choices[0].message.content
+        prompt = f"""
+        Act as an elite medical & lifestyle AI coach. 
+        Read this user's profile carefully and tailor EVERY piece of advice around their conditions and medications.
+        
+        USER PROFILE:
+        {med_context}
+        
+        LAST 7 DAYS OF LOGS:
+        {log_text}
+        
+        Provide a structured, empathetic analysis. Use HTML formatting (<h3>, <ul>, <li>, <strong>) for readability. Do NOT use markdown.
+        """
+
+        client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+        )
+        ai_response = response.choices[0].message.content
+        
+    except Exception as e:
+        error = f"Coach is currently unavailable. Error: {str(e)}"
+        
+    return render(request, 'core/ai_analysis.html', {'ai_response': ai_response, 'error': error})
