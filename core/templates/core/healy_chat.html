@@ -54,7 +54,6 @@
 </div>
 
 <style>
-    /* Hides the scrollbar for the quick prompts but keeps it scrollable */
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
@@ -68,21 +67,19 @@
         const sendBtn = document.getElementById('healy-send');
         const messagesDiv = document.getElementById('healy-messages');
 
-        // Toggle visibility with animation
         function toggleChat() {
             if (panel.classList.contains('scale-0')) {
                 panel.classList.remove('scale-0', 'opacity-0');
                 panel.classList.add('flex');
             } else {
                 panel.classList.add('scale-0', 'opacity-0');
-                setTimeout(() => panel.classList.remove('flex'), 300); // Wait for animation
+                setTimeout(() => panel.classList.remove('flex'), 300);
             }
         }
 
         toggleBtn.addEventListener('click', toggleChat);
         closeBtn.addEventListener('click', toggleChat);
 
-        // Utility to get CSRF token
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -98,7 +95,6 @@
             return cookieValue;
         }
 
-        // Add message to UI
         function appendMessage(sender, text) {
             const isUser = sender === 'user';
             const msgHTML = `
@@ -113,10 +109,9 @@
             `;
             messagesDiv.insertAdjacentHTML('beforeend', msgHTML);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            lucide.createIcons(); // Re-render new icons
+            if (window.lucide) lucide.createIcons();
         }
 
-        // Add loading bubble
         function appendLoading() {
             const loadingHTML = `
                 <div id="healy-loading" class="flex items-start gap-2 max-w-[85%]">
@@ -130,10 +125,9 @@
             `;
             messagesDiv.insertAdjacentHTML('beforeend', loadingHTML);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
         }
 
-        // Handle Sending Logic
         async function sendMessage(messageText) {
             if (!messageText.trim()) return;
             
@@ -142,7 +136,8 @@
             appendLoading();
 
             try {
-                const response = await fetch("{% url 'healy_chat' %}", {
+                // THE FIX IS HERE: Direct URL path instead of strict Django tag
+                const response = await fetch("/healy-chat/", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -161,12 +156,10 @@
             }
         }
 
-        // Expose Quick Prompt function to global scope so buttons can use it
         window.sendQuickPrompt = function(text) {
             sendMessage(text);
         };
 
-        // Listen for Send Button and Enter Key
         sendBtn.addEventListener('click', () => sendMessage(input.value));
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage(input.value);
