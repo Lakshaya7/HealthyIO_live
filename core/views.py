@@ -14,6 +14,7 @@ import os
 import json
 import re
 from groq import Groq
+from datetime import date, timedelta
 
 # --- Helper for Clean AI Initialization ---
 def get_ai_client():
@@ -391,43 +392,54 @@ def download_report(request):
 
     return FileResponse(buffer, as_attachment=True, filename=f"HealthyIO_Report_{request.user.username}.pdf")
 
-@login_required
-def ai_coach(request):
-    ai_response = None
-    error = None
+def get_ai_coach_response(user, user_message):
+    profile = user.userprofile
     
-    logs = HealthLog.objects.filter(user=request.user).order_by('-date')[:7]
-    profile_obj, _ = UserProfile.objects.get_or_create(user=request.user)
-    
-    if not logs.exists():
-        error = "You need to log at least one day of health data before the AI Coach can analyze your habits!"
-    else:
-        log_data = "\n".join([f"Date: {l.date}, Sleep: {l.sleep_hours}h, Water: {l.water_intake} gls, Intake: {l.calories_intake}kcal, Burned: {l.calories_burned}kcal, Exercise: {l.exercise_type}, Score: {l.health_score}" for l in logs])
+    # 1. Calculate Exact Age using Python
+    age_context = "The user has not provided their age."
+    if profile.date_of_birth:
+        today = date.today()
+        # This calculates exact years based on their birthday
+        age = today.year - profile.date_of_birth.year - ((today.month, today.day) < (profile.date_of_birth.month, profile.date_of_birth.day))
         
-        prompt = f"""You are an expert Clinical Health Coach and Medical Doctor. 
-        Analyze these 7-day health logs and provide a structured, actionable 3-paragraph plan.
-        
-        USER MEDICAL PROFILE (CRITICAL):
-        - Health Issues: {profile_obj.health_issues or 'None reported'}
-        - Stage/Severity: {profile_obj.issue_stage or 'N/A'}
-        - Medications: {profile_obj.medications or 'None reported'}
-        
-        RECENT LOGS:
-        {log_data}
-        
-        Format your response in beautiful HTML (using <h3>, <p>, <ul>, <li>, <strong>). Do NOT include ```html markdown tags. 
-        CRITICAL RULE: Ensure your advice STRICTLY accommodates their medical conditions and warns against any activities or habits that contradict their medications or illness stage.
+        # Inject age-specific rules for the AI
+        if age < 6:
+            age_context = f"The user is a child ({age} years old). Focus heavily on pediatrician-recommended vaccination schedules, early childhood nutrition, and child-safe remedies. Speak to the parent/guardian."
+        elif age <= 17:
+            age_context = f"The user is a teenager ({age} years old). Focus on puberty, mental health for adolescents, and active lifestyles."
+        elif age > 60:
+            age_context = f"The user is a senior ({age} years old). Focus on joint health, preventive screenings, and gentle mobility."
+        else:
+            age_context = f"The user is {age} years old. Provide standard adult wellness advice."
+
+    # 2. Calculate Menstrual Cycle (Baseline 28 days)
+    cycle_context = ""
+    if profile.gender == 'F' and profile.last_menstrual_period:
+        next_cycle = profile.last_menstrual_period + timedelta(days=28)
+        cycle_context = f"""
+        The user is female. Her last menstrual period started on {profile.last_menstrual_period}. 
+        Her next predicted cycle starts around {next_cycle}. 
+        Please tailor your wellness, energy, and exercise advice to this specific phase of her cycle.
         """
-        
-        try:
-            client = get_ai_client()
-            response = client.chat.completions.create(
-                messages=[{"role": "user", "content": prompt}],
-                model="llama-3.3-70b-versatile",
-                temperature=0.2,
-            )
-            ai_response = response.choices[0].message.content
-        except Exception as e:
-            error = f"AI Coach is currently unavailable. Error: {e}"
-            
-    return render(request, 'core/ai_analysis.html', {'ai_response': ai_response, 'error': error})
+
+    # 3. Build the Master System Prompt
+    system_prompt = f"""
+    You are the HealthyIO AI Coach. 
+    You must follow these rules based on the user's hidden biological data:
+    {age_context}
+    {cycle_context}
+    Always provide empathetic, scientifically accurate advice. Remind them to consult a real doctor for serious issues.
+    """
+
+    # 4. Call Groq with the dynamic personality
+    client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+    
+    response = client.chat.completions.create(
+        model="llama3-8b-8192", # or whichever model you are using
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message}
+        ]
+    )
+    
+    return response.choices[0].message.content

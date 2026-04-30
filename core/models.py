@@ -12,6 +12,17 @@ class UserProfile(models.Model):
     issue_stage = models.CharField(max_length=100, null=True, blank=True)
     medications = models.CharField(max_length=255, null=True, blank=True)
 
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+    ]
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True, help_text="Used to calculate exact age")
+    last_menstrual_period = models.DateField(blank=True, null=True, help_text="Leave blank if not applicable")
+
     def __str__(self):
         return f"{self.user.username}'s Profile"
 

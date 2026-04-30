@@ -155,5 +155,24 @@
             bmiDisplay.parentElement.style.borderColor = "#374151"; bmiDisplay.parentElement.style.boxShadow = "inset 0 0 20px rgba(0,0,0,0.5)";
         }
     }
+    document.addEventListener("DOMContentLoaded", function() {
+        const genderSelect = document.getElementById("id_gender");
+        const lmpContainer = document.getElementById("lmp-field-container");
+
+        function toggleLMPField() {
+            // Show the field ONLY if Female ('F') is selected
+            if (genderSelect.value === 'F') {
+                lmpContainer.style.display = 'block';
+            } else {
+                lmpContainer.style.display = 'none';
+                // Optional: clear the date if they switch away from Female
+                document.getElementById("id_last_menstrual_period").value = ''; 
+            }
+        }
+
+        // Run on page load and whenever they change the dropdown
+        toggleLMPField();
+        genderSelect.addEventListener("change", toggleLMPField);
+    });
 </script>
 {% endblock %}
