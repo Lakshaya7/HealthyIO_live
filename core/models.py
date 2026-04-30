@@ -18,11 +18,15 @@ class UserProfile(models.Model):
         ('O', 'Other'),
     ]
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, null=True)
+    
+    # We use Date of Birth instead of 'Age' so the age automatically updates every year
     date_of_birth = models.DateField(blank=True, null=True, help_text="Used to calculate exact age")
+    
+    # Menstrual cycle tracking (Hidden on front-end for non-females)
     last_menstrual_period = models.DateField(blank=True, null=True, help_text="Leave blank if not applicable")
-
+    
     def __str__(self):
         return f"{self.user.username}'s Profile"
 

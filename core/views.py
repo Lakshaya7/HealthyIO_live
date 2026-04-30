@@ -393,49 +393,65 @@ def download_report(request):
     return FileResponse(buffer, as_attachment=True, filename=f"HealthyIO_Report_{request.user.username}.pdf")
 
 def ai_coach(user, user_message):
-    profile = user.userprofile
+    """
+    Takes the user's hidden biological data (age, gender, cycle) 
+    and injects it into the AI's brain before responding.
+    """
     
-    # 1. Calculate Exact Age using Python
+    # 1. Grab the user's profile data
+    # (If using a different app name, ensure the profile is created upon signup)
+    try:
+        profile = user.userprofile
+    except:
+        profile = None
+
     age_context = "The user has not provided their age."
-    if profile.date_of_birth:
-        today = date.today()
-        # This calculates exact years based on their birthday
-        age = today.year - profile.date_of_birth.year - ((today.month, today.day) < (profile.date_of_birth.month, profile.date_of_birth.day))
-        
-        # Inject age-specific rules for the AI
-        if age < 6:
-            age_context = f"The user is a child ({age} years old). Focus heavily on pediatrician-recommended vaccination schedules, early childhood nutrition, and child-safe remedies. Speak to the parent/guardian."
-        elif age <= 17:
-            age_context = f"The user is a teenager ({age} years old). Focus on puberty, mental health for adolescents, and active lifestyles."
-        elif age > 60:
-            age_context = f"The user is a senior ({age} years old). Focus on joint health, preventive screenings, and gentle mobility."
-        else:
-            age_context = f"The user is {age} years old. Provide standard adult wellness advice."
-
-    # 2. Calculate Menstrual Cycle (Baseline 28 days)
     cycle_context = ""
-    if profile.gender == 'F' and profile.last_menstrual_period:
-        next_cycle = profile.last_menstrual_period + timedelta(days=28)
-        cycle_context = f"""
-        The user is female. Her last menstrual period started on {profile.last_menstrual_period}. 
-        Her next predicted cycle starts around {next_cycle}. 
-        Please tailor your wellness, energy, and exercise advice to this specific phase of her cycle.
-        """
 
-    # 3. Build the Master System Prompt
+    if profile:
+        # 2. Calculate Exact Age using Python
+        if profile.date_of_birth:
+            today = date.today()
+            # Math to calculate exact age factoring in leap years/months
+            age = today.year - profile.date_of_birth.year - ((today.month, today.day) < (profile.date_of_birth.month, profile.date_of_birth.day))
+            
+            # Inject age-specific rules for the AI
+            if age < 6:
+                age_context = f"The user is a young child ({age} years old). Focus heavily on pediatrician-recommended vaccination schedules, early childhood nutrition, and child-safe remedies. Speak to the parent/guardian."
+            elif age <= 17:
+                age_context = f"The user is a teenager ({age} years old). Focus on puberty, adolescent mental health, academic stress, and active lifestyles."
+            elif age > 60:
+                age_context = f"The user is a senior ({age} years old). Focus on joint health, arthritis prevention, preventive health screenings, and gentle mobility."
+            else:
+                age_context = f"The user is an adult ({age} years old). Provide standard adult wellness and preventative care advice."
+
+        # 3. Calculate Menstrual Cycle (Baseline 28 days)
+        if profile.gender == 'F' and profile.last_menstrual_period:
+            next_cycle = profile.last_menstrual_period + timedelta(days=28)
+            cycle_context = f"""
+            The user is female. Her last menstrual period started on {profile.last_menstrual_period}. 
+            Her next predicted cycle starts around {next_cycle}. 
+            Please tailor your wellness, mood, energy, and exercise advice specifically to this phase of her menstrual cycle.
+            """
+
+    # 4. Build the Master System Prompt
     system_prompt = f"""
-    You are the HealthyIO AI Coach. 
-    You must follow these rules based on the user's hidden biological data:
+    You are the HealthyIO AI Health & Wellness Coach. 
+    You must follow these rules based on the user's biological data:
+    
     {age_context}
+    
     {cycle_context}
-    Always provide empathetic, scientifically accurate advice. Remind them to consult a real doctor for serious issues.
+    
+    Always provide empathetic, scientifically accurate advice based on these specific demographics. 
+    Always remind them to consult a real medical doctor for serious or life-threatening issues.
     """
 
-    # 4. Call Groq with the dynamic personality
+    # 5. Call the Groq API (Note: No proxies argument!)
     client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
     
     response = client.chat.completions.create(
-        model="llama3-8b-8192", # or whichever model you are using
+        model="llama3-8b-8192", # Feel free to upgrade to 'llama3-70b-8192' for smarter responses
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_message}

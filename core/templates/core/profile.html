@@ -42,6 +42,59 @@
                         </div>
                     </div>
 
+                    <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-8">
+        
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-extrabold text-gray-900">Your Health Profile</h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Update your details to help the AI Coach provide highly personalized insights.
+            </p>
+        </div>
+
+        <form method="POST" action="">
+            {% csrf_token %}
+
+            <div class="space-y-6">
+                <!-- Gender Field -->
+                <div>
+                    <label for="{{ form.gender.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Biological Gender
+                    </label>
+                    <div class="mt-1">
+                        {{ form.gender }}
+                    </div>
+                </div>
+
+                <!-- Date of Birth Field -->
+                <div>
+                    <label for="{{ form.date_of_birth.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Date of Birth
+                    </label>
+                    <p class="text-xs text-gray-500 mb-1">Used to tailor advice for your exact age group.</p>
+                    <div class="mt-1">
+                        {{ form.date_of_birth }}
+                    </div>
+                </div>
+
+                <!-- Menstrual Cycle Field (Hidden by default using Tailwind's 'hidden' class) -->
+                <div id="lmp-container" class="hidden bg-pink-50 p-4 rounded-lg border border-pink-200 mt-4 transition-all duration-300">
+                    <label for="{{ form.last_menstrual_period.id_for_label }}" class="block text-sm font-medium text-pink-800">
+                        First Day of Last Menstrual Period
+                    </label>
+                    <p class="text-xs text-pink-600 mb-2">
+                        Used to predict your next cycle and adapt fitness/mood suggestions.
+                    </p>
+                    <div class="mt-1">
+                        {{ form.last_menstrual_period }}
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+
                     <!-- Medical AI Context Section -->
                     <div class="relative my-10">
                         <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-100"></div></div>
@@ -102,6 +155,7 @@
                     </div>
                 </div>
             </div>
+
             
             <form action="{% url 'logout' %}" method="post">
                 {% csrf_token %}
@@ -157,22 +211,29 @@
     }
     document.addEventListener("DOMContentLoaded", function() {
         const genderSelect = document.getElementById("id_gender");
-        const lmpContainer = document.getElementById("lmp-field-container");
+        const lmpContainer = document.getElementById("lmp-container");
+        const lmpInput = document.getElementById("id_last_menstrual_period");
 
-        function toggleLMPField() {
-            // Show the field ONLY if Female ('F') is selected
+        function toggleCycleField() {
+            if (!genderSelect) return;
+            
+            // 'F' is the exact value saved in our models.py choices
             if (genderSelect.value === 'F') {
-                lmpContainer.style.display = 'block';
+                lmpContainer.classList.remove('hidden');
             } else {
-                lmpContainer.style.display = 'none';
-                // Optional: clear the date if they switch away from Female
-                document.getElementById("id_last_menstrual_period").value = ''; 
+                lmpContainer.classList.add('hidden');
+                // Clear the date if they switch away from Female so it doesn't save bad data
+                if (lmpInput) {
+                    lmpInput.value = '';
+                }
             }
         }
-
-        // Run on page load and whenever they change the dropdown
-        toggleLMPField();
-        genderSelect.addEventListener("change", toggleLMPField);
+        toggleCycleField();
+        
+        // Listen for user changing the dropdown
+        if (genderSelect) {
+            genderSelect.addEventListener("change", toggleCycleField);
+        }
     });
 </script>
 {% endblock %}

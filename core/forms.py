@@ -43,11 +43,21 @@ class UserUpdateForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['health_issues', 'issue_stage', 'medications']
+        fields = ['gender', 'date_of_birth', 'last_menstrual_period']
+        
+        # This is the magic that turns boring text boxes into Calendar Date Pickers!
         widgets = {
-            'health_issues': forms.TextInput(attrs={'placeholder': 'e.g., Diabetes, Hypertension, PCOS'}),
-            'issue_stage': forms.TextInput(attrs={'placeholder': 'e.g., Type 2, Mild, Stage 1'}),
-            'medications': forms.TextInput(attrs={'placeholder': 'e.g., Metformin (500mg), None'}),
+            'gender': forms.Select(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border'
+            }),
+            'date_of_birth': forms.DateInput(attrs={
+                'type': 'date', # Forces the browser calendar UI
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border'
+            }),
+            'last_menstrual_period': forms.DateInput(attrs={
+                'type': 'date', # Forces the browser calendar UI
+                'class': 'mt-1 block w-full rounded-md border-pink-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm p-2 border'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
