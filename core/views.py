@@ -80,8 +80,18 @@ def profile(request):
     return render(request, 'core/profile.html', {'form': form})
 
 
+
 @login_required
 def dashboard(request):
+    from .models import UserProfile, HealthLog
+    
+    # --- THE SAFETY NET ---
+    # This single line instantly fixes the 500 Server Error by 
+    # quietly generating a blank profile if your Google account doesn't have one yet.
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    # ----------------------
+
+    # Your original working logic below
     logs = HealthLog.objects.filter(user=request.user).order_by('-date', '-id')
     latest_log = logs.first()
     
