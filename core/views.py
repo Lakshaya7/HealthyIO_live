@@ -506,19 +506,28 @@ def healy_chat(request):
             """
 
             client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+            
+            # FIXED: Swapped to the highly reliable 3.3-70b model
             response = client.chat.completions.create(
-                model="llama3-8b-8192", # Fast and responsive model
+                model="llama-3.3-70b-versatile", 
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message}
                 ],
-                temperature=0.3, # Low temperature keeps it focused on facts
+                temperature=0.3, 
             )
             
             ai_reply = response.choices[0].message.content
             return JsonResponse({'status': 'success', 'reply': ai_reply})
             
         except Exception as e:
-            return JsonResponse({'status': 'error', 'reply': "I'm having a little trouble connecting to my servers right now. Let's try again in a moment!"})
+            # FIXED: We now print the exact error so you can see it in the Render logs
+            print(f"--- HEALY API ERROR ---: {str(e)}")
+            
+            # FIXED: Healy will now tell you the exact bug in the chat window!
+            return JsonResponse({
+                'status': 'error', 
+                'reply': f"API Error: {str(e)}"
+            })
             
     return JsonResponse({'status': 'error', 'reply': 'Invalid request'})
