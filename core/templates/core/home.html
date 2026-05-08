@@ -80,12 +80,12 @@
 </style>
 
 <!-- ==============================================
-     HERO SECTION (Parallax + Breathing Backgrounds)
+     GLOBAL FIXED BACKGROUND (Covers Entire Page)
      ============================================== -->
-<div class="relative w-full min-h-[90vh] flex flex-col justify-center items-center overflow-hidden bg-gradient-to-b from-white to-teal-50/50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
-
+<div class="fixed inset-0 w-full h-full pointer-events-none z-0 bg-gradient-to-b from-gray-50 to-teal-50/40 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300 overflow-hidden">
+    
     <!-- ZEN BREATHING WAVE AURA -->
-    <div class="absolute bottom-0 left-0 w-full h-[50vh] z-[1] pointer-events-none flex items-end justify-center overflow-hidden">
+    <div class="absolute bottom-0 left-0 w-full h-[50vh] flex items-end justify-center">
         <div class="breathing-aura"></div>
         <div class="absolute bottom-0 w-full h-[30vh] opacity-60">
             <svg class="absolute bottom-0 w-[200%] h-full breathing-svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
@@ -101,17 +101,20 @@
         </div>
     </div>
 
-    <!-- FLOATING HEALTH PARTICLES (Parallax Layers) -->
-    <div id="parallax-container" class="absolute inset-0 pointer-events-none z-[2] overflow-hidden">
-        <!-- Far back layer (Slow moving, very blurry) -->
+    <!-- FLOATING HEALTH PARTICLES (Parallax Layers spread across entire screen) -->
+    <div id="parallax-container" class="absolute inset-0 z-10">
+        <!-- Far back layer -->
         <div class="parallax-item absolute top-[15%] left-[10%] text-pink-400 dark:text-pink-500 opacity-30 blur-[3px]" data-speed="-1">
             <i data-lucide="heart" class="w-16 h-16 animate-drift"></i>
         </div>
         <div class="parallax-item absolute top-[40%] right-[10%] text-teal-400 dark:text-teal-500 opacity-20 blur-[4px]" data-speed="-1.5">
             <i data-lucide="activity" class="w-24 h-24 animate-drift-slow"></i>
         </div>
+        <div class="parallax-item absolute bottom-[15%] left-[5%] text-indigo-400 dark:text-indigo-500 opacity-20 blur-[3px]" data-speed="-2">
+            <i data-lucide="moon" class="w-20 h-20 animate-drift"></i>
+        </div>
         
-        <!-- Mid layer (Medium speed, slightly blurry) -->
+        <!-- Mid layer -->
         <div class="parallax-item absolute top-[25%] right-[25%] text-blue-400 dark:text-blue-500 opacity-40 blur-[1.5px]" data-speed="3">
             <i data-lucide="droplet" class="w-12 h-12 animate-drift-slow"></i>
         </div>
@@ -122,18 +125,24 @@
             <i data-lucide="brain-circuit" class="w-10 h-10 animate-drift"></i>
         </div>
 
-        <!-- Front layer (Fastest, crispest) -->
+        <!-- Front layer -->
         <div class="parallax-item absolute bottom-[25%] right-[20%] text-yellow-400 dark:text-yellow-500 opacity-60 drop-shadow-lg" data-speed="5">
             <i data-lucide="apple" class="w-10 h-10 animate-drift"></i>
         </div>
-        <div class="parallax-item absolute top-[60%] left-[25%] text-indigo-400 dark:text-indigo-500 opacity-60 drop-shadow-lg" data-speed="-4">
-            <i data-lucide="moon" class="w-8 h-8 animate-drift-slow"></i>
+        <div class="parallax-item absolute top-[70%] right-[40%] text-orange-400 dark:text-orange-500 opacity-50 drop-shadow-lg" data-speed="-4">
+            <i data-lucide="flame" class="w-8 h-8 animate-drift-slow"></i>
         </div>
     </div>
+</div>
 
-    <!-- MAIN HERO CONTENT -->
-    <div class="relative z-[10] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-fade-in-up">
-        <div class="inline-flex items-center gap-2 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md px-5 py-2.5 rounded-full mb-8 border border-teal-500/20 shadow-sm">
+<!-- ==============================================
+     SCROLLABLE PAGE CONTENT (Overlays Background)
+     ============================================== -->
+<div class="relative z-10 w-full flex flex-col">
+
+    <!-- HERO SECTION -->
+    <div class="w-full min-h-[90vh] flex flex-col justify-center items-center text-center animate-fade-in-up px-4 sm:px-6 lg:px-8">
+        <div class="inline-flex items-center gap-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md px-5 py-2.5 rounded-full mb-8 border border-white/50 dark:border-gray-700 shadow-sm">
             <i data-lucide="heart" class="w-5 h-5 text-pink-500 fill-pink-500/20"></i>
             <span class="font-bold tracking-wide text-sm text-teal-800 dark:text-teal-200">UN SDG Goal 3: Good Health & Well-being</span>
         </div>
@@ -151,70 +160,63 @@
             <a href="{% url 'register' %}" class="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-bold text-lg rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2">
                 Start Your Journey <i data-lucide="chevron-right" class="w-5 h-5"></i>
             </a>
-            <button onclick="document.getElementById('about').scrollIntoView({behavior: 'smooth'})" class="w-full sm:w-auto px-10 py-4 rounded-full font-bold text-gray-700 dark:text-gray-200 bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 transition-all backdrop-blur-sm shadow-sm">
+            <button onclick="document.getElementById('about').scrollIntoView({behavior: 'smooth'})" class="w-full sm:w-auto px-10 py-4 rounded-full font-bold text-gray-700 dark:text-gray-200 bg-white/60 dark:bg-gray-800/60 border border-white/50 dark:border-gray-700 hover:bg-white/80 dark:hover:bg-gray-800 transition-all backdrop-blur-md shadow-sm">
                 Learn More
             </button>
         </div>
     </div>
-</div>
 
-<!-- ==============================================
-     FEATURES SECTION
-     ============================================== -->
-<div id="about" class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-transparent">
-    <div class="text-center mb-20">
-        <h2 class="text-4xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">Why HealthyIO?</h2>
-        <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed font-medium">
-            We align your personal fitness goals with the <span class="text-teal-600 dark:text-teal-400 font-bold">United Nations Sustainable Development Goal 3</span> to ensure healthy lives and promote well-being for all ages.
-        </p>
-    </div>
+    <!-- FEATURES SECTION (Glassmorphism Cards) -->
+    <div id="about" class="py-24 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-20">
+            <h2 class="text-4xl font-black text-gray-900 dark:text-white mb-6 tracking-tight drop-shadow-sm">Why HealthyIO?</h2>
+            <p class="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed font-medium drop-shadow-sm">
+                We align your personal fitness goals with the <span class="text-teal-600 dark:text-teal-400 font-bold">United Nations Sustainable Development Goal 3</span> to ensure healthy lives and promote well-being for all ages.
+            </p>
+        </div>
 
-    <div class="grid md:grid-cols-3 gap-10">
-        <div class="p-8 bg-white dark:bg-gray-800 rounded-[2rem] border border-teal-100 dark:border-teal-900 shadow-xl hover:-translate-y-2 transition-transform duration-300 group">
-            <div class="w-16 h-16 bg-teal-50 dark:bg-teal-900/30 rounded-2xl flex items-center justify-center text-teal-600 dark:text-teal-400 mb-8 transform rotate-3 group-hover:rotate-6 transition-transform">
-                <i data-lucide="activity" class="w-8 h-8"></i>
+        <div class="grid md:grid-cols-3 gap-10">
+            <div class="p-8 bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-[2rem] border border-white/50 dark:border-gray-700 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-2 transition-transform duration-300 group">
+                <div class="w-16 h-16 bg-teal-50/80 dark:bg-teal-900/50 rounded-2xl flex items-center justify-center text-teal-600 dark:text-teal-400 mb-8 transform rotate-3 group-hover:rotate-6 transition-transform shadow-inner">
+                    <i data-lucide="activity" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Track Vitals</h3>
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed font-medium">Monitor your daily vitals including sleep cycles, water intake, and physical exercise to visualize your improvement over time.</p>
             </div>
-            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Track Vitals</h3>
-            <p class="text-gray-600 dark:text-gray-400 leading-relaxed">Monitor your daily vitals including sleep cycles, water intake, and physical exercise to visualize your improvement over time.</p>
-        </div>
-        <div class="p-8 bg-white dark:bg-gray-800 rounded-[2rem] border border-blue-100 dark:border-blue-900 shadow-xl hover:-translate-y-2 transition-transform duration-300 group">
-            <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center text-blue-600 dark:text-blue-400 mb-8 transform -rotate-3 group-hover:-rotate-6 transition-transform">
-                <i data-lucide="award" class="w-8 h-8"></i>
+            <div class="p-8 bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-[2rem] border border-white/50 dark:border-gray-700 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-2 transition-transform duration-300 group">
+                <div class="w-16 h-16 bg-blue-50/80 dark:bg-blue-900/50 rounded-2xl flex items-center justify-center text-blue-600 dark:text-blue-400 mb-8 transform -rotate-3 group-hover:-rotate-6 transition-transform shadow-inner">
+                    <i data-lucide="award" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">AI Health Score</h3>
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed font-medium">Get a daily health score based on your activities. Let our intelligent AI Coach gamify your journey to better health with actionable insights.</p>
             </div>
-            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">AI Health Score</h3>
-            <p class="text-gray-600 dark:text-gray-400 leading-relaxed">Get a daily health score based on your activities. Let our intelligent AI Coach gamify your journey to better health with actionable insights.</p>
-        </div>
-        <div class="p-8 bg-white dark:bg-gray-800 rounded-[2rem] border border-purple-100 dark:border-purple-900 shadow-xl hover:-translate-y-2 transition-transform duration-300 group">
-            <div class="w-16 h-16 bg-purple-50 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center text-purple-600 dark:text-purple-400 mb-8 transform rotate-3 group-hover:rotate-6 transition-transform">
-                <i data-lucide="globe" class="w-8 h-8"></i>
+            <div class="p-8 bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-[2rem] border border-white/50 dark:border-gray-700 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-2 transition-transform duration-300 group">
+                <div class="w-16 h-16 bg-purple-50/80 dark:bg-purple-900/50 rounded-2xl flex items-center justify-center text-purple-600 dark:text-purple-400 mb-8 transform rotate-3 group-hover:rotate-6 transition-transform shadow-inner">
+                    <i data-lucide="globe" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Global Impact</h3>
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed font-medium">Small individual steps lead to a giant leap for global well-being. Contribute directly to the UN's vision for a healthier planet.</p>
             </div>
-            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Global Impact</h3>
-            <p class="text-gray-600 dark:text-gray-400 leading-relaxed">Small individual steps lead to a giant leap for global well-being. Contribute directly to the UN's vision for a healthier planet.</p>
         </div>
     </div>
-</div>
 
-<!-- ==============================================
-     QUOTES SECTION
-     ============================================== -->
-<div class="bg-gray-900 text-white py-28 relative overflow-hidden rounded-t-[3rem]">
-    <div class="absolute -top-40 -right-40 w-[30rem] h-[30rem] bg-teal-500/20 rounded-full blur-[100px] pointer-events-none"></div>
-    <div class="absolute -bottom-40 -left-40 w-[30rem] h-[30rem] bg-emerald-500/20 rounded-full blur-[100px] pointer-events-none"></div>
-    
-    <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
-        <i data-lucide="quote" class="w-16 h-16 mx-auto text-teal-500 mb-10 opacity-50"></i>
-        <blockquote class="text-3xl md:text-5xl font-serif italic leading-tight mb-12 text-gray-100">
-            "To keep the body in good health is a duty... otherwise we shall not be able to keep our mind strong and clear."
-        </blockquote>
-        <cite class="text-teal-400 font-bold tracking-widest uppercase text-sm md:text-base not-italic block mb-2">— Buddha</cite>
-        <div class="w-24 h-1 bg-gradient-to-r from-teal-500 to-emerald-500 mx-auto rounded-full mt-8"></div>
+    <!-- QUOTES SECTION (Glassmorphism overlap) -->
+    <div class="bg-gray-900/80 dark:bg-gray-900/95 backdrop-blur-2xl text-white py-28 relative overflow-hidden rounded-t-[3rem] border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+        <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+            <i data-lucide="quote" class="w-16 h-16 mx-auto text-teal-400 mb-10 opacity-50 drop-shadow-md"></i>
+            <blockquote class="text-3xl md:text-5xl font-serif italic leading-tight mb-12 text-gray-100 drop-shadow-lg">
+                "To keep the body in good health is a duty... otherwise we shall not be able to keep our mind strong and clear."
+            </blockquote>
+            <cite class="text-teal-400 font-bold tracking-widest uppercase text-sm md:text-base not-italic block mb-2 drop-shadow-sm">— Buddha</cite>
+            <div class="w-24 h-1 bg-gradient-to-r from-teal-400 to-emerald-400 mx-auto rounded-full mt-8 shadow-[0_0_15px_rgba(45,212,191,0.5)]"></div>
+        </div>
     </div>
+
 </div>
 
 <!-- PARALLAX MOUSE LISTENER -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Only run parallax on desktop devices to save battery on mobile
         if(window.innerWidth > 768) {
             document.addEventListener("mousemove", function(e) {
                 const items = document.querySelectorAll('.parallax-item');
